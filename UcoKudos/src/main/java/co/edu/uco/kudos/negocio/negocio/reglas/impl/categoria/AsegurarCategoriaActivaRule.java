@@ -8,20 +8,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarCategoriaActivaRule implements Rule<UUID> {
+public final class AsegurarCategoriaActivaRule implements Rule<Object> {
 
-	private static final Rule<UUID> INSTANCIA = new AsegurarCategoriaActivaRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarCategoriaActivaRule();
 
 	private AsegurarCategoriaActivaRule() {
 
 	}
 
-	public static Rule<UUID> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UUID id, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var id = (UUID) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var categoria = daoFactory.obtenerCategoriaDAO().consultarPorId(id);
 		ValidadorNegocio.asegurarCondicion(!UtilUUID.esValorDefecto(categoria.getId()) && categoria.isActiva(),
 				CatalogoMensajes.Reglas.CATEGORIA_INACTIVA);

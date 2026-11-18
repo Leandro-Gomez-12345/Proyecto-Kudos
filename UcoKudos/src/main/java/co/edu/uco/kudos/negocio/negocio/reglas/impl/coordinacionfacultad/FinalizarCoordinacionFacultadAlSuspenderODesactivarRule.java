@@ -7,22 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorVigencias;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFecha;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class FinalizarCoordinacionFacultadAlSuspenderODesactivarRule
-		implements Rule<CoordinacionFacultadEntidad> {
+public final class FinalizarCoordinacionFacultadAlSuspenderODesactivarRule implements Rule<Object> {
 
-	private static final Rule<CoordinacionFacultadEntidad> INSTANCIA =
-			new FinalizarCoordinacionFacultadAlSuspenderODesactivarRule();
+	private static final Rule<Object> INSTANCIA = new FinalizarCoordinacionFacultadAlSuspenderODesactivarRule();
 
 	private FinalizarCoordinacionFacultadAlSuspenderODesactivarRule() {
 
 	}
 
-	public static Rule<CoordinacionFacultadEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CoordinacionFacultadEntidad coordinacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var coordinacion = (CoordinacionFacultadEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var fechaFin = UtilFecha.esValorDefecto(coordinacion.getFechaFin())
 				? UtilFecha.obtenerFechaActual() : coordinacion.getFechaFin();
 		var sinUnidad = UtilUUID.obtenerUUIDDefecto();

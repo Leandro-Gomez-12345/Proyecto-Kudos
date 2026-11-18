@@ -9,20 +9,23 @@ import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.utilitarios.UtilBooleano;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 
-public final class AsignarEstadoInicialRegistroPorAdministradorRule implements Rule<UsuarioEntidad> {
+public final class AsignarEstadoInicialRegistroPorAdministradorRule implements Rule<Object> {
 
-	private static final Rule<UsuarioEntidad> INSTANCIA = new AsignarEstadoInicialRegistroPorAdministradorRule();
+	private static final Rule<Object> INSTANCIA = new AsignarEstadoInicialRegistroPorAdministradorRule();
 
 	private AsignarEstadoInicialRegistroPorAdministradorRule() {
 
 	}
 
-	public static Rule<UsuarioEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UsuarioEntidad usuario, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var usuario = (UsuarioEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		usuario.setRol(ConsultorCatalogos.obtenerRol(daoFactory, usuario.getRol().getNombre()));
 		EstadosCuenta.asignar(daoFactory, usuario, NombresCatalogo.EstadoCuenta.APROBADA);
 		usuario.setCorreoVerificado(UtilBooleano.NO);

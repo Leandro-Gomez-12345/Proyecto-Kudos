@@ -7,20 +7,23 @@ import co.edu.uco.kudos.entidad.VinculacionAcademicaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarIdVinculacionAcademicaUnicoRule implements Rule<VinculacionAcademicaEntidad> {
+public final class AsegurarIdVinculacionAcademicaUnicoRule implements Rule<Object> {
 
-	private static final Rule<VinculacionAcademicaEntidad> INSTANCIA = new AsegurarIdVinculacionAcademicaUnicoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarIdVinculacionAcademicaUnicoRule();
 
 	private AsegurarIdVinculacionAcademicaUnicoRule() {
 
 	}
 
-	public static Rule<VinculacionAcademicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(VinculacionAcademicaEntidad vinculacionAcademica, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var vinculacionAcademica = (VinculacionAcademicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		do {
 			vinculacionAcademica.setId(UtilUUID.generar());
 		} while (existeConId(vinculacionAcademica.getId(), daoFactory));

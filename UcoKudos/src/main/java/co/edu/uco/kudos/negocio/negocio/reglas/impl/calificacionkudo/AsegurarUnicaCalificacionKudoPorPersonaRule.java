@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
 
-public final class AsegurarUnicaCalificacionKudoPorPersonaRule implements Rule<CalificacionKudoEntidad> {
+public final class AsegurarUnicaCalificacionKudoPorPersonaRule implements Rule<Object> {
 
-	private static final Rule<CalificacionKudoEntidad> INSTANCIA = new AsegurarUnicaCalificacionKudoPorPersonaRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarUnicaCalificacionKudoPorPersonaRule();
 
 	private AsegurarUnicaCalificacionKudoPorPersonaRule() {
 
 	}
 
-	public static Rule<CalificacionKudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CalificacionKudoEntidad calificacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var calificacion = (CalificacionKudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var filtro = new CalificacionKudoEntidad();
 		filtro.setKudo(calificacion.getKudo());
 		filtro.getUsuario().setId(ContextoEjecucion.obtenerIdEjecutor());

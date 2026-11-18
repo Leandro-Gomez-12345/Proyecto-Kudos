@@ -9,20 +9,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 
-public final class AsegurarUsuarioPuedeModerarRule implements Rule<UUID> {
+public final class AsegurarUsuarioPuedeModerarRule implements Rule<Object> {
 
-	private static final Rule<UUID> INSTANCIA = new AsegurarUsuarioPuedeModerarRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarUsuarioPuedeModerarRule();
 
 	private AsegurarUsuarioPuedeModerarRule() {
 
 	}
 
-	public static Rule<UUID> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UUID idEjecutor, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var idEjecutor = (UUID) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		ValidadorNegocio.asegurarCondicion(ConsultorUsuarios.tieneRol(daoFactory, idEjecutor,
 				NombresCatalogo.Rol.RECTOR,
 				NombresCatalogo.Rol.COORDINADOR_ACADEMICO),

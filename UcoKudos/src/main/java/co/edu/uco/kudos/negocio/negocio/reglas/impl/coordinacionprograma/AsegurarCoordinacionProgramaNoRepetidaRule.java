@@ -6,20 +6,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 
-public final class AsegurarCoordinacionProgramaNoRepetidaRule implements Rule<CoordinacionProgramaEntidad> {
+public final class AsegurarCoordinacionProgramaNoRepetidaRule implements Rule<Object> {
 
-	private static final Rule<CoordinacionProgramaEntidad> INSTANCIA = new AsegurarCoordinacionProgramaNoRepetidaRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarCoordinacionProgramaNoRepetidaRule();
 
 	private AsegurarCoordinacionProgramaNoRepetidaRule() {
 
 	}
 
-	public static Rule<CoordinacionProgramaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CoordinacionProgramaEntidad coordinacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var coordinacion = (CoordinacionProgramaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var filtro = new CoordinacionProgramaEntidad();
 		filtro.setUsuario(coordinacion.getUsuario());
 		filtro.setProgramaAcademico(coordinacion.getProgramaAcademico());

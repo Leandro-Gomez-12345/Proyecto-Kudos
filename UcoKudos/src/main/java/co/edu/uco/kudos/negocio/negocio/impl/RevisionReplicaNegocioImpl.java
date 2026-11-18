@@ -99,7 +99,7 @@ public final class RevisionReplicaNegocioImpl implements RevisionReplicaNegocio 
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioPuedeModerarRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoVetoDirectoReplicaValidoRule.obtenerInstancia().ejecutar(revision, daoFactory);
+		AsegurarFormatoVetoDirectoReplicaValidoRule.obtenerInstancia().ejecutar(revision);
 		AsegurarReplicaExisteRule.obtenerInstancia().ejecutar(idReplica, daoFactory);
 		AsegurarReplicaPuedeVetarseDirectamenteRule.obtenerInstancia().ejecutar(idReplica, daoFactory);
 		AsegurarRevisionReplicaNoRepetidaRule.obtenerInstancia().ejecutar(revision, daoFactory);
@@ -136,7 +136,7 @@ public final class RevisionReplicaNegocioImpl implements RevisionReplicaNegocio 
 
 		var revision = daoFactory.obtenerRevisionReplicaDAO().consultarPorId(id);
 		revision.setJustificacion(datos.getJustificacion());
-		AsegurarFormatoJustificacionRevisionReplicaValidoRule.obtenerInstancia().ejecutar(revision, daoFactory);
+		AsegurarFormatoJustificacionRevisionReplicaValidoRule.obtenerInstancia().ejecutar(revision);
 		return revision;
 	}
 

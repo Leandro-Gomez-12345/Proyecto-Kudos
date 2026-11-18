@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.vinculacionacademica;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.VinculacionAcademicaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.FormatosAtributos;
@@ -22,7 +21,9 @@ public final class AsegurarFormatoVinculacionAcademicaValidoRule implements Rule
 	}
 
 	@Override
-	public void ejecutar(VinculacionAcademicaEntidad vinculacion, DAOFactory daoFactory) {
+	public void ejecutar(VinculacionAcademicaEntidad... datos) {
+		var vinculacion = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(vinculacion.getUsuario().getId(),
 				CatalogoMensajes.Reglas.VINCULACION_PERSONA_OBLIGATORIA);
 		ValidadorAtributos.asegurarReferencia(vinculacion.getProgramaAcademico().getId(),

@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 
-public final class AsegurarRevisionReplicaExisteRule implements Rule<UUID> {
+public final class AsegurarRevisionReplicaExisteRule implements Rule<Object> {
 
-	private static final Rule<UUID> INSTANCIA = new AsegurarRevisionReplicaExisteRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarRevisionReplicaExisteRule();
 
 	private AsegurarRevisionReplicaExisteRule() {
 
 	}
 
-	public static Rule<UUID> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UUID id, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var id = (UUID) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var entidad = daoFactory.obtenerRevisionReplicaDAO().consultarPorId(id);
 		ValidadorNegocio.asegurarQueExiste(entidad.getId(), CatalogoMensajes.Reglas.REVISION_NO_EXISTE);
 	}

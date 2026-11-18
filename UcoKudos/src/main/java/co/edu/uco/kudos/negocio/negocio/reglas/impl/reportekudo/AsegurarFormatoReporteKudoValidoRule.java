@@ -10,9 +10,9 @@ import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
 
-public final class AsegurarFormatoReporteKudoValidoRule implements Rule<ReporteKudoEntidad> {
+public final class AsegurarFormatoReporteKudoValidoRule implements Rule<Object> {
 
-	private static final Rule<ReporteKudoEntidad> INSTANCIA = new AsegurarFormatoReporteKudoValidoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarFormatoReporteKudoValidoRule();
 
 	private static final int LONGITUD_MINIMA_OBLIGATORIA = 1;
 	private static final int LONGITUD_MINIMA_OPCIONAL = 0;
@@ -22,12 +22,15 @@ public final class AsegurarFormatoReporteKudoValidoRule implements Rule<ReporteK
 
 	}
 
-	public static Rule<ReporteKudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(ReporteKudoEntidad reporte, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var reporte = (ReporteKudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		ValidadorAtributos.asegurarReferencia(reporte.getKudo().getId(),
 				CatalogoMensajes.Reglas.REPORTE_KUDO_OBLIGATORIO);
 		ValidadorAtributos.asegurarReferencia(reporte.getMotivo().getId(),

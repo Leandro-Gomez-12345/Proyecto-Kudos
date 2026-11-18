@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.categoria;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.CategoriaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 
@@ -17,8 +16,10 @@ public final class AsegurarFormatoCategoriaValidoRule implements Rule<CategoriaE
 	}
 
 	@Override
-	public void ejecutar(CategoriaEntidad categoria, DAOFactory daoFactory) {
-		AsegurarFormatoNombreCategoriaValidoRule.obtenerInstancia().ejecutar(categoria, daoFactory);
-		AsegurarFormatoDescripcionCategoriaValidoRule.obtenerInstancia().ejecutar(categoria, daoFactory);
+	public void ejecutar(CategoriaEntidad... datos) {
+		var categoria = datos[0];
+
+		AsegurarFormatoNombreCategoriaValidoRule.obtenerInstancia().ejecutar(categoria);
+		AsegurarFormatoDescripcionCategoriaValidoRule.obtenerInstancia().ejecutar(categoria);
 	}
 }

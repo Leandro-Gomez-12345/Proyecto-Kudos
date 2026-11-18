@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.reportekudo;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.ReporteKudoEntidad;
 import co.edu.uco.kudos.entidad.RevisionKudoEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
@@ -20,7 +19,9 @@ public final class AsignarDatosInicialesReporteKudoRule implements Rule<ReporteK
 	}
 
 	@Override
-	public void ejecutar(ReporteKudoEntidad reporte, DAOFactory daoFactory) {
+	public void ejecutar(ReporteKudoEntidad... datos) {
+		var reporte = datos[0];
+
 		reporte.getUsuario().setId(ContextoEjecucion.obtenerIdEjecutor());
 		reporte.setFechaReporte(UtilFechaHora.obtenerFechaHoraActual());
 		reporte.setRevisionKudo(new RevisionKudoEntidad());

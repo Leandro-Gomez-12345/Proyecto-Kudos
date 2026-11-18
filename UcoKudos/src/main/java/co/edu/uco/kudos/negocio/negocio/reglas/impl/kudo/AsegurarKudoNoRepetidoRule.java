@@ -8,20 +8,22 @@ import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 
-public final class AsegurarKudoNoRepetidoRule implements Rule<KudoEntidad> {
+public final class AsegurarKudoNoRepetidoRule implements Rule<Object> {
 
-	private static final Rule<KudoEntidad> INSTANCIA = new AsegurarKudoNoRepetidoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarKudoNoRepetidoRule();
 
 	private AsegurarKudoNoRepetidoRule() {
 
 	}
 
-	public static Rule<KudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(KudoEntidad kudo, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var daoFactory = (DAOFactory) datos[1];
+
 		var filtro = new KudoEntidad();
 		filtro.getAutor().setId(ContextoEjecucion.obtenerIdEjecutor());
 		filtro.setFechaCreacion(UtilFechaHora.obtenerFechaHoraActual());

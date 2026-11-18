@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.calificacionkudo;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.CalificacionKudoEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorAtributos;
@@ -22,7 +21,9 @@ public final class AsegurarFormatoCalificacionKudoValidoRule implements Rule<Cal
 	}
 
 	@Override
-	public void ejecutar(CalificacionKudoEntidad calificacion, DAOFactory daoFactory) {
+	public void ejecutar(CalificacionKudoEntidad... datos) {
+		var calificacion = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(calificacion.getKudo().getId(),
 				CatalogoMensajes.Reglas.CALIFICACION_KUDO_OBLIGATORIO);
 		ValidadorAtributos.asegurarEnteroEnRango(calificacion.getEstrellas(), ESTRELLAS_MINIMAS,

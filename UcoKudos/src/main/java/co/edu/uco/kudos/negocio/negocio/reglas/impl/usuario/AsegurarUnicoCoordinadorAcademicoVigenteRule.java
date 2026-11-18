@@ -9,20 +9,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 
-public final class AsegurarUnicoCoordinadorAcademicoVigenteRule implements Rule<UsuarioEntidad> {
+public final class AsegurarUnicoCoordinadorAcademicoVigenteRule implements Rule<Object> {
 
-	private static final Rule<UsuarioEntidad> INSTANCIA = new AsegurarUnicoCoordinadorAcademicoVigenteRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarUnicoCoordinadorAcademicoVigenteRule();
 
 	private AsegurarUnicoCoordinadorAcademicoVigenteRule() {
 
 	}
 
-	public static Rule<UsuarioEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UsuarioEntidad usuario, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var usuario = (UsuarioEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var rol = ConsultorCatalogos.obtenerRol(daoFactory, NombresCatalogo.Rol.COORDINADOR_ACADEMICO);
 		if (!rol.getId().equals(usuario.getRol().getId())) {
 			return;

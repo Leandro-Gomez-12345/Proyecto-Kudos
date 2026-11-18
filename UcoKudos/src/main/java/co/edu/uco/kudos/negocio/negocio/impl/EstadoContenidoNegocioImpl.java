@@ -19,8 +19,7 @@ public final class EstadoContenidoNegocioImpl implements EstadoContenidoNegocio 
 
 	@Override
 	public List<EstadoContenidoDominio> consultarEstadosContenido() {
-		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(),
-				daoFactory);
+		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		var registros = daoFactory.obtenerEstadoContenidoDAO().consultarTodos();
 		return EstadoContenidoEntidadAssembler.obtenerInstancia().convertirADominio(registros);
 	}

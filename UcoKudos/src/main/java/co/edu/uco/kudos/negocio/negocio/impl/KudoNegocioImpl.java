@@ -45,9 +45,9 @@ public final class KudoNegocioImpl implements KudoNegocio {
 		var idCategoria = kudo.getCategoria().getId();
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
-		AsegurarFormatoKudoValidoRule.obtenerInstancia().ejecutar(kudo, daoFactory);
+		AsegurarFormatoKudoValidoRule.obtenerInstancia().ejecutar(kudo);
 		AsegurarPersonaIndicadaActivaRule.obtenerInstancia().ejecutar(kudo.getDestinatario().getId(), daoFactory);
-		AsegurarDestinatarioDistintoDelAutorRule.obtenerInstancia().ejecutar(kudo, daoFactory);
+		AsegurarDestinatarioDistintoDelAutorRule.obtenerInstancia().ejecutar(kudo);
 		AsegurarCategoriaExisteRule.obtenerInstancia().ejecutar(idCategoria, daoFactory);
 		AsegurarCategoriaActivaRule.obtenerInstancia().ejecutar(idCategoria, daoFactory);
 		AsegurarKudoNoRepetidoRule.obtenerInstancia().ejecutar(kudo, daoFactory);

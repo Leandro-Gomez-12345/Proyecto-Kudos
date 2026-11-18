@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.auditoria;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.AuditoriaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.FormatosAtributos;
@@ -20,7 +19,9 @@ public final class AsegurarDetalleSinDatosSensiblesRule implements Rule<Auditori
 	}
 
 	@Override
-	public void ejecutar(AuditoriaEntidad auditoria, DAOFactory daoFactory) {
+	public void ejecutar(AuditoriaEntidad... datos) {
+		var auditoria = datos[0];
+
 		var detalle = auditoria.getDetalle();
 		var contieneDatosSensibles = FormatosAtributos.CORREO_COMPLETO.matcher(detalle).find()
 				|| FormatosAtributos.CELULAR_COMPLETO.matcher(detalle).find();

@@ -35,7 +35,7 @@ public final class ProgramaAcademicoNegocioImpl implements ProgramaAcademicoNego
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioEsAdministradorRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoProgramaAcademicoValidoRule.obtenerInstancia().ejecutar(programa, daoFactory);
+		AsegurarFormatoProgramaAcademicoValidoRule.obtenerInstancia().ejecutar(programa);
 		AsegurarFacultadExisteRule.obtenerInstancia().ejecutar(programa.getFacultad().getId(), daoFactory);
 		AsegurarNombreProgramaAcademicoNoExistaRule.obtenerInstancia().ejecutar(programa, daoFactory);
 		AsegurarIdProgramaAcademicoUnicoRule.obtenerInstancia().ejecutar(programa, daoFactory);
@@ -66,7 +66,7 @@ public final class ProgramaAcademicoNegocioImpl implements ProgramaAcademicoNego
 		var programa = daoFactory.obtenerProgramaAcademicoDAO().consultarPorId(id);
 		var nombreAnterior = programa.getNombre();
 		programa.setNombre(datos.getNombre());
-		AsegurarFormatoNombreProgramaAcademicoValidoRule.obtenerInstancia().ejecutar(programa, daoFactory);
+		AsegurarFormatoNombreProgramaAcademicoValidoRule.obtenerInstancia().ejecutar(programa);
 		AsegurarNombreProgramaAcademicoNoExistaRule.obtenerInstancia().ejecutar(programa, daoFactory);
 
 		daoFactory.obtenerProgramaAcademicoDAO().actualizar(id, programa);

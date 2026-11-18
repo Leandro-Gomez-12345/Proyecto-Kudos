@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.replica;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.ReplicaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorAtributos;
@@ -21,7 +20,9 @@ public final class AsegurarFormatoReplicaValidoRule implements Rule<ReplicaEntid
 	}
 
 	@Override
-	public void ejecutar(ReplicaEntidad replica, DAOFactory daoFactory) {
+	public void ejecutar(ReplicaEntidad... datos) {
+		var replica = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(replica.getKudo().getId(),
 				CatalogoMensajes.Reglas.REPLICA_KUDO_OBLIGATORIO);
 		ValidadorAtributos.asegurarTextoSinLimite(replica.getContenido(), LONGITUD_MINIMA_CONTENIDO,

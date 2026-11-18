@@ -7,20 +7,23 @@ import co.edu.uco.kudos.entidad.FacultadEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarIdFacultadUnicoRule implements Rule<FacultadEntidad> {
+public final class AsegurarIdFacultadUnicoRule implements Rule<Object> {
 
-	private static final Rule<FacultadEntidad> INSTANCIA = new AsegurarIdFacultadUnicoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarIdFacultadUnicoRule();
 
 	private AsegurarIdFacultadUnicoRule() {
 
 	}
 
-	public static Rule<FacultadEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(FacultadEntidad facultad, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var facultad = (FacultadEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		do {
 			facultad.setId(UtilUUID.generar());
 		} while (existeConId(facultad.getId(), daoFactory));

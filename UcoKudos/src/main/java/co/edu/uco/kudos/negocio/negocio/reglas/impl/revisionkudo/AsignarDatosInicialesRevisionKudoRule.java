@@ -8,20 +8,23 @@ import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 
-public final class AsignarDatosInicialesRevisionKudoRule implements Rule<RevisionKudoEntidad> {
+public final class AsignarDatosInicialesRevisionKudoRule implements Rule<Object> {
 
-	private static final Rule<RevisionKudoEntidad> INSTANCIA = new AsignarDatosInicialesRevisionKudoRule();
+	private static final Rule<Object> INSTANCIA = new AsignarDatosInicialesRevisionKudoRule();
 
 	private AsignarDatosInicialesRevisionKudoRule() {
 
 	}
 
-	public static Rule<RevisionKudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(RevisionKudoEntidad revision, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var revision = (RevisionKudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		revision.getModerador().setId(ContextoEjecucion.obtenerIdEjecutor());
 		revision.setFechaInicio(UtilFechaHora.obtenerFechaHoraActual());
 		revision.setEstadoRevision(ConsultorCatalogos.obtenerEstadoRevision(daoFactory,

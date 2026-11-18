@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.auditoria;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.AuditoriaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.Auditor;
@@ -26,7 +25,9 @@ public final class AsegurarFormatoAuditoriaValidoRule implements Rule<AuditoriaE
 	}
 
 	@Override
-	public void ejecutar(AuditoriaEntidad auditoria, DAOFactory daoFactory) {
+	public void ejecutar(AuditoriaEntidad... datos) {
+		var auditoria = datos[0];
+
 		var mensajeUsuario = CatalogoMensajes.Reglas.AUDITORIA_NO_REGISTRADA;
 		ValidadorAtributos.asegurarReferencia(auditoria.getUsuario().getId(), mensajeUsuario);
 		ValidadorAtributos.asegurarTexto(auditoria.getAccion(), LONGITUD_MINIMA_ACCION, LONGITUD_MAXIMA_ACCION,

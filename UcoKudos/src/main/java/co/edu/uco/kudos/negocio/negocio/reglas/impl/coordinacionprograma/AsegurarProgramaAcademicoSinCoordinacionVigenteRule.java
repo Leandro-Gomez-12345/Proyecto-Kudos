@@ -8,21 +8,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarProgramaAcademicoSinCoordinacionVigenteRule implements Rule<CoordinacionProgramaEntidad> {
+public final class AsegurarProgramaAcademicoSinCoordinacionVigenteRule implements Rule<Object> {
 
-	private static final Rule<CoordinacionProgramaEntidad> INSTANCIA =
-			new AsegurarProgramaAcademicoSinCoordinacionVigenteRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarProgramaAcademicoSinCoordinacionVigenteRule();
 
 	private AsegurarProgramaAcademicoSinCoordinacionVigenteRule() {
 
 	}
 
-	public static Rule<CoordinacionProgramaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CoordinacionProgramaEntidad coordinacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var coordinacion = (CoordinacionProgramaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var sinPersona = UtilUUID.obtenerUUIDDefecto();
 		var vigentes = ConsultorVigencias.coordinacionesPrograma(daoFactory, sinPersona,
 				coordinacion.getProgramaAcademico().getId());

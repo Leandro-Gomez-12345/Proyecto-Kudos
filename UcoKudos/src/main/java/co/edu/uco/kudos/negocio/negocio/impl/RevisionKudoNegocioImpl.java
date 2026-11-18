@@ -99,7 +99,7 @@ public final class RevisionKudoNegocioImpl implements RevisionKudoNegocio {
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioPuedeModerarRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoVetoDirectoKudoValidoRule.obtenerInstancia().ejecutar(revision, daoFactory);
+		AsegurarFormatoVetoDirectoKudoValidoRule.obtenerInstancia().ejecutar(revision);
 		AsegurarKudoExisteRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		AsegurarKudoPuedeVetarseDirectamenteRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		AsegurarRevisionKudoNoRepetidaRule.obtenerInstancia().ejecutar(revision, daoFactory);
@@ -136,7 +136,7 @@ public final class RevisionKudoNegocioImpl implements RevisionKudoNegocio {
 
 		var revision = daoFactory.obtenerRevisionKudoDAO().consultarPorId(id);
 		revision.setJustificacion(datos.getJustificacion());
-		AsegurarFormatoJustificacionRevisionKudoValidoRule.obtenerInstancia().ejecutar(revision, daoFactory);
+		AsegurarFormatoJustificacionRevisionKudoValidoRule.obtenerInstancia().ejecutar(revision);
 		return revision;
 	}
 

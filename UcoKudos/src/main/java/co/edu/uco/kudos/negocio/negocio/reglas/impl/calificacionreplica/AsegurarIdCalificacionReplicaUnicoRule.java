@@ -7,20 +7,23 @@ import co.edu.uco.kudos.entidad.CalificacionReplicaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarIdCalificacionReplicaUnicoRule implements Rule<CalificacionReplicaEntidad> {
+public final class AsegurarIdCalificacionReplicaUnicoRule implements Rule<Object> {
 
-	private static final Rule<CalificacionReplicaEntidad> INSTANCIA = new AsegurarIdCalificacionReplicaUnicoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarIdCalificacionReplicaUnicoRule();
 
 	private AsegurarIdCalificacionReplicaUnicoRule() {
 
 	}
 
-	public static Rule<CalificacionReplicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CalificacionReplicaEntidad calificacionReplica, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var calificacionReplica = (CalificacionReplicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		do {
 			calificacionReplica.setId(UtilUUID.generar());
 		} while (existeConId(calificacionReplica.getId(), daoFactory));

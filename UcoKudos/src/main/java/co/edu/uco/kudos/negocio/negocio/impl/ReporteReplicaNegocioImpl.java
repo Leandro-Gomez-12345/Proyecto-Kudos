@@ -10,7 +10,6 @@ import co.edu.uco.kudos.negocio.negocio.ReporteReplicaNegocio;
 import co.edu.uco.kudos.negocio.negocio.assembler.impl.ReporteReplicaEntidadAssembler;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.Auditor;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorCatalogos;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ReportesConEstado;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.kudo.AsegurarKudoAdmiteInteraccionRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.motivo.AsegurarMotivoExisteRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.replica.AsegurarReplicaExisteRule;
@@ -49,7 +48,7 @@ public final class ReporteReplicaNegocioImpl implements ReporteReplicaNegocio {
 		AsegurarMotivoExisteRule.obtenerInstancia().ejecutar(reporte.getMotivo().getId(), daoFactory);
 		AsegurarReporteReplicaNoRepetidoRule.obtenerInstancia().ejecutar(reporte, daoFactory);
 		AsegurarIdReporteReplicaUnicoRule.obtenerInstancia().ejecutar(reporte, daoFactory);
-		AsignarDatosInicialesReporteReplicaRule.obtenerInstancia().ejecutar(reporte, daoFactory);
+		AsignarDatosInicialesReporteReplicaRule.obtenerInstancia().ejecutar(reporte);
 
 		daoFactory.obtenerReporteReplicaDAO().crear(reporte);
 		MarcarReplicaReportadaAlRecibirReporteRule.obtenerInstancia().ejecutar(idReplica, daoFactory);
@@ -68,8 +67,7 @@ public final class ReporteReplicaNegocioImpl implements ReporteReplicaNegocio {
 
 		var filtroEntidad = ReporteReplicaEntidadAssembler.obtenerInstancia().convertirAEntidad(filtro);
 		var reportes = new ArrayList<>(daoFactory.obtenerReporteReplicaDAO().consultarPorFiltro(filtroEntidad));
-		DeducirEstadoReporteReplicaRule.obtenerInstancia().ejecutar(new ReportesConEstado<>(reportes, estado),
-				daoFactory);
+		DeducirEstadoReporteReplicaRule.obtenerInstancia().ejecutar(reportes, estado, daoFactory);
 		return ReporteReplicaEntidadAssembler.obtenerInstancia().convertirADominio(reportes);
 	}
 

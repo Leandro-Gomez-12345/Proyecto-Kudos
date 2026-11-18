@@ -28,11 +28,11 @@ public final class AuditoriaNegocioImpl implements AuditoriaNegocio {
 	public void registrarAuditoria(AuditoriaDominio datos) {
 		var auditoria = AuditoriaEntidadAssembler.obtenerInstancia().convertirAEntidad(datos);
 
-		AsegurarFormatoAuditoriaValidoRule.obtenerInstancia().ejecutar(auditoria, daoFactory);
-		AsegurarAccionEsEventoAuditableRule.obtenerInstancia().ejecutar(auditoria, daoFactory);
-		AsegurarDetalleSinDatosSensiblesRule.obtenerInstancia().ejecutar(auditoria, daoFactory);
+		AsegurarFormatoAuditoriaValidoRule.obtenerInstancia().ejecutar(auditoria);
+		AsegurarAccionEsEventoAuditableRule.obtenerInstancia().ejecutar(auditoria);
+		AsegurarDetalleSinDatosSensiblesRule.obtenerInstancia().ejecutar(auditoria);
 		AsegurarIdAuditoriaUnicoRule.obtenerInstancia().ejecutar(auditoria, daoFactory);
-		AsignarFechaHoraAuditoriaRule.obtenerInstancia().ejecutar(auditoria, daoFactory);
+		AsignarFechaHoraAuditoriaRule.obtenerInstancia().ejecutar(auditoria);
 
 		daoFactory.obtenerAuditoriaDAO().crear(auditoria);
 	}
@@ -54,7 +54,7 @@ public final class AuditoriaNegocioImpl implements AuditoriaNegocio {
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 
 		var filtroEntidad = AuditoriaEntidadAssembler.obtenerInstancia().convertirAEntidad(filtro);
-		AsegurarConsultaSoloActividadPropiaRule.obtenerInstancia().ejecutar(filtroEntidad, daoFactory);
+		AsegurarConsultaSoloActividadPropiaRule.obtenerInstancia().ejecutar(filtroEntidad);
 
 		var auditorias = daoFactory.obtenerAuditoriaDAO().consultarPorFiltro(filtroEntidad);
 		return AuditoriaEntidadAssembler.obtenerInstancia().convertirADominio(auditorias);

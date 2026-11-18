@@ -9,20 +9,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 
-public final class AsegurarPersonaIndicadaActivaRule implements Rule<UUID> {
+public final class AsegurarPersonaIndicadaActivaRule implements Rule<Object> {
 
-	private static final Rule<UUID> INSTANCIA = new AsegurarPersonaIndicadaActivaRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarPersonaIndicadaActivaRule();
 
 	private AsegurarPersonaIndicadaActivaRule() {
 
 	}
 
-	public static Rule<UUID> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UUID id, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var id = (UUID) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		ValidadorNegocio.asegurarCondicion(ConsultorUsuarios.tieneEstadoCuenta(daoFactory, id,
 				NombresCatalogo.EstadoCuenta.ACTIVA),
 				CatalogoMensajes.Reglas.PERSONA_NO_ACTIVA);

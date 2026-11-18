@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.UsuarioEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.FormatosAtributos;
@@ -23,7 +22,9 @@ public final class AsegurarFormatoNombreUsuarioValidoRule implements Rule<Usuari
 	}
 
 	@Override
-	public void ejecutar(UsuarioEntidad usuario, DAOFactory daoFactory) {
+	public void ejecutar(UsuarioEntidad... datos) {
+		var usuario = datos[0];
+
 		ValidadorAtributos.asegurarTexto(usuario.getNombre(), LONGITUD_MINIMA_NOMBRE, LONGITUD_MAXIMA_NOMBRE,
 				CatalogoMensajes.Reglas.USUARIO_NOMBRE_NO_VALIDO);
 		ValidadorAtributos.asegurarFormato(usuario.getNombre(), FormatosAtributos.SOLO_LETRAS_Y_ESPACIOS,

@@ -45,7 +45,7 @@ public final class CoordinacionProgramaNegocioImpl implements CoordinacionProgra
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioEsCoordinadorFacultadRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoCoordinacionProgramaValidoRule.obtenerInstancia().ejecutar(coordinacion, daoFactory);
+		AsegurarFormatoCoordinacionProgramaValidoRule.obtenerInstancia().ejecutar(coordinacion);
 		AsegurarProgramaAcademicoExisteRule.obtenerInstancia().ejecutar(coordinacion.getProgramaAcademico().getId(),
 				daoFactory);
 		AsegurarProgramaPerteneceAFacultadDelCoordinadorRule.obtenerInstancia().ejecutar(coordinacion, daoFactory);
@@ -73,7 +73,7 @@ public final class CoordinacionProgramaNegocioImpl implements CoordinacionProgra
 		var vigentes = ConsultorVigencias.coordinacionesPrograma(daoFactory, coordinacion.getUsuario().getId(),
 				UtilUUID.obtenerUUIDDefecto());
 		var vigente = vigentes.isEmpty() ? new CoordinacionProgramaEntidad() : vigentes.get(0);
-		AsegurarCoordinacionProgramaVigenteRule.obtenerInstancia().ejecutar(vigente, daoFactory);
+		AsegurarCoordinacionProgramaVigenteRule.obtenerInstancia().ejecutar(vigente);
 		FinalizarCoordinacionProgramaAlSuspenderODesactivarRule.obtenerInstancia().ejecutar(coordinacion, daoFactory);
 
 		Auditor.registrar(daoFactory, EventoAuditable.FINALIZAR_COORDINACION_PROGRAMA, vigente.getId(),

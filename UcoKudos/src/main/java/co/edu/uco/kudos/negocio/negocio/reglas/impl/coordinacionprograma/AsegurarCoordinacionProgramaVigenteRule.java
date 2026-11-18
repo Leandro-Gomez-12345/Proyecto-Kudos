@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.coordinacionprograma;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.CoordinacionProgramaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
@@ -21,7 +20,9 @@ public final class AsegurarCoordinacionProgramaVigenteRule implements Rule<Coord
 	}
 
 	@Override
-	public void ejecutar(CoordinacionProgramaEntidad coordinacion, DAOFactory daoFactory) {
+	public void ejecutar(CoordinacionProgramaEntidad... datos) {
+		var coordinacion = datos[0];
+
 		var estaVigente = !UtilUUID.esValorDefecto(coordinacion.getId())
 				&& UtilFecha.esValorDefecto(coordinacion.getFechaFin());
 		ValidadorNegocio.asegurarCondicion(estaVigente, CatalogoMensajes.Reglas.COORDINACION_YA_TERMINADA);

@@ -2,7 +2,6 @@ package co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario;
 
 import java.util.UUID;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorUsuarios;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
@@ -21,7 +20,9 @@ public final class AsegurarUsuarioEsTitularRule implements Rule<UUID> {
 	}
 
 	@Override
-	public void ejecutar(UUID idUsuario, DAOFactory daoFactory) {
+	public void ejecutar(UUID... datos) {
+		var idUsuario = datos[0];
+
 		ValidadorNegocio.asegurarCondicion(ConsultorUsuarios.esEjecutor(idUsuario),
 				CatalogoMensajes.Reglas.USUARIO_NO_ES_TITULAR);
 	}

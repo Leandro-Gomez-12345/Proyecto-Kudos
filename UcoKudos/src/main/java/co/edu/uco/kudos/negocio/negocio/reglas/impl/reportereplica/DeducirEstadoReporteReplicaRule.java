@@ -1,34 +1,38 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.reportereplica;
 
+import java.util.List;
+
 import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.ReporteReplicaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorCatalogos;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.EstadosReporte;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ReportesConEstado;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class DeducirEstadoReporteReplicaRule implements Rule<ReportesConEstado<ReporteReplicaEntidad>> {
+public final class DeducirEstadoReporteReplicaRule implements Rule<Object> {
 
-	private static final Rule<ReportesConEstado<ReporteReplicaEntidad>> INSTANCIA =
-			new DeducirEstadoReporteReplicaRule();
+	private static final Rule<Object> INSTANCIA = new DeducirEstadoReporteReplicaRule();
 
 	private DeducirEstadoReporteReplicaRule() {
 
 	}
 
-	public static Rule<ReportesConEstado<ReporteReplicaEntidad>> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(ReportesConEstado<ReporteReplicaEntidad> consulta, DAOFactory daoFactory) {
-		if (UtilTexto.esVacia(consulta.estado())) {
+	@SuppressWarnings("unchecked")
+	public void ejecutar(Object... datos) {
+		var reportes = (List<ReporteReplicaEntidad>) datos[0];
+		var estado = (String) datos[1];
+		var daoFactory = (DAOFactory) datos[2];
+
+		if (UtilTexto.esVacia(estado)) {
 			return;
 		}
-		consulta.reportes().removeIf(reporte -> !EstadosReporte.coincide(
-				deducirEstado(reporte, daoFactory), consulta.estado()));
+		reportes.removeIf(reporte -> !EstadosReporte.coincide(deducirEstado(reporte, daoFactory), estado));
 	}
 
 	private static String deducirEstado(ReporteReplicaEntidad reporte, DAOFactory daoFactory) {

@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.coordinacionfacultad;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.CoordinacionFacultadEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.FormatosAtributos;
@@ -22,7 +21,9 @@ public final class AsegurarFormatoCoordinacionFacultadValidoRule implements Rule
 	}
 
 	@Override
-	public void ejecutar(CoordinacionFacultadEntidad coordinacion, DAOFactory daoFactory) {
+	public void ejecutar(CoordinacionFacultadEntidad... datos) {
+		var coordinacion = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(coordinacion.getUsuario().getId(),
 				CatalogoMensajes.Reglas.COORDINACION_PERSONA_OBLIGATORIA);
 		ValidadorAtributos.asegurarReferencia(coordinacion.getFacultad().getId(),

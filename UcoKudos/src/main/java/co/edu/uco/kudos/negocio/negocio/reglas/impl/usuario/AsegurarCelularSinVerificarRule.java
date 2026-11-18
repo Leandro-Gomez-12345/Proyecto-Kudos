@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.UsuarioEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
@@ -19,7 +18,9 @@ public final class AsegurarCelularSinVerificarRule implements Rule<UsuarioEntida
 	}
 
 	@Override
-	public void ejecutar(UsuarioEntidad usuario, DAOFactory daoFactory) {
+	public void ejecutar(UsuarioEntidad... datos) {
+		var usuario = datos[0];
+
 		ValidadorNegocio.asegurarCondicion(!usuario.isCelularVerificado(),
 				CatalogoMensajes.Reglas.CELULAR_YA_VERIFICADO);
 	}

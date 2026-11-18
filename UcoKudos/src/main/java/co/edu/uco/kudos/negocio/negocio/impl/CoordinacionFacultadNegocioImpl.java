@@ -42,7 +42,7 @@ public final class CoordinacionFacultadNegocioImpl implements CoordinacionFacult
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioEsCoordinadorAcademicoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoCoordinacionFacultadValidoRule.obtenerInstancia().ejecutar(coordinacion, daoFactory);
+		AsegurarFormatoCoordinacionFacultadValidoRule.obtenerInstancia().ejecutar(coordinacion);
 		AsegurarFacultadExisteRule.obtenerInstancia().ejecutar(coordinacion.getFacultad().getId(), daoFactory);
 		AsegurarPersonaIndicadaActivaRule.obtenerInstancia().ejecutar(idPersona, daoFactory);
 		AsegurarPersonaTieneRolCoordinadorFacultadRule.obtenerInstancia().ejecutar(idPersona, daoFactory);
@@ -67,7 +67,7 @@ public final class CoordinacionFacultadNegocioImpl implements CoordinacionFacult
 		var vigentes = ConsultorVigencias.coordinacionesFacultad(daoFactory, coordinacion.getUsuario().getId(),
 				UtilUUID.obtenerUUIDDefecto());
 		var vigente = vigentes.isEmpty() ? new CoordinacionFacultadEntidad() : vigentes.get(0);
-		AsegurarCoordinacionFacultadVigenteRule.obtenerInstancia().ejecutar(vigente, daoFactory);
+		AsegurarCoordinacionFacultadVigenteRule.obtenerInstancia().ejecutar(vigente);
 		FinalizarCoordinacionFacultadAlSuspenderODesactivarRule.obtenerInstancia().ejecutar(coordinacion, daoFactory);
 
 		Auditor.registrar(daoFactory, EventoAuditable.FINALIZAR_COORDINACION_FACULTAD, vigente.getId(),

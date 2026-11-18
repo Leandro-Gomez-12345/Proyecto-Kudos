@@ -47,7 +47,7 @@ public final class ReplicaNegocioImpl implements ReplicaNegocio {
 		var idKudo = replica.getKudo().getId();
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
-		AsegurarFormatoReplicaValidoRule.obtenerInstancia().ejecutar(replica, daoFactory);
+		AsegurarFormatoReplicaValidoRule.obtenerInstancia().ejecutar(replica);
 		AsegurarKudoExisteRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		AsegurarKudoAdmiteInteraccionRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		AsegurarReplicaNoRepetidaRule.obtenerInstancia().ejecutar(replica, daoFactory);
@@ -71,7 +71,7 @@ public final class ReplicaNegocioImpl implements ReplicaNegocio {
 		}
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
-		AsegurarFormatoReplicaValidoRule.obtenerInstancia().ejecutar(replica, daoFactory);
+		AsegurarFormatoReplicaValidoRule.obtenerInstancia().ejecutar(replica);
 		AsegurarReplicaExisteRule.obtenerInstancia().ejecutar(idPadre, daoFactory);
 		AsegurarReplicaAdmiteInteraccionRule.obtenerInstancia().ejecutar(idPadre, daoFactory);
 		AsegurarReplicaPadreDelMismoKudoRule.obtenerInstancia().ejecutar(replica, daoFactory);

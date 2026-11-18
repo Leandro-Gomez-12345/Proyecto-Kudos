@@ -9,20 +9,23 @@ import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
 
-public final class MostrarAvisoEnKudoVetadoRule implements Rule<KudoEntidad> {
+public final class MostrarAvisoEnKudoVetadoRule implements Rule<Object> {
 
-	private static final Rule<KudoEntidad> INSTANCIA = new MostrarAvisoEnKudoVetadoRule();
+	private static final Rule<Object> INSTANCIA = new MostrarAvisoEnKudoVetadoRule();
 
 	private MostrarAvisoEnKudoVetadoRule() {
 
 	}
 
-	public static Rule<KudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(KudoEntidad kudo, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var kudo = (KudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var estaVetado = EstadosContenido.estaEn(daoFactory, kudo.getEstadoContenido().getId(),
 				NombresCatalogo.EstadoContenido.VETADO);
 		var puedeVerContenido = ConsultorUsuarios.tieneRol(daoFactory, ContextoEjecucion.obtenerIdEjecutor(),

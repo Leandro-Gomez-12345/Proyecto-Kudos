@@ -1,12 +1,10 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.UsuarioConCodigo;
 
-public final class AsegurarCodigoCelularValidoRule implements Rule<UsuarioConCodigo> {
+public final class AsegurarCodigoCelularValidoRule implements Rule<Object> {
 
-	private static final Rule<UsuarioConCodigo> INSTANCIA = new AsegurarCodigoCelularValidoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarCodigoCelularValidoRule();
 
 	private static final String OPERACION_PENDIENTE =
 			"Operación pendiente de implementar: no existe un objeto del modelo donde guardar "
@@ -16,12 +14,12 @@ public final class AsegurarCodigoCelularValidoRule implements Rule<UsuarioConCod
 
 	}
 
-	public static Rule<UsuarioConCodigo> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UsuarioConCodigo verificacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
 		throw new UnsupportedOperationException(OPERACION_PENDIENTE);
 	}
 }

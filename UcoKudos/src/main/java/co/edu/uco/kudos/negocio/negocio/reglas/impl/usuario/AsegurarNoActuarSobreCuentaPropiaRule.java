@@ -2,7 +2,6 @@ package co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario;
 
 import java.util.UUID;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorUsuarios;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
@@ -21,7 +20,9 @@ public final class AsegurarNoActuarSobreCuentaPropiaRule implements Rule<UUID> {
 	}
 
 	@Override
-	public void ejecutar(UUID idPersona, DAOFactory daoFactory) {
+	public void ejecutar(UUID... datos) {
+		var idPersona = datos[0];
+
 		ValidadorNegocio.asegurarCondicion(!ConsultorUsuarios.esEjecutor(idPersona),
 				CatalogoMensajes.Reglas.NO_PUEDE_ACTUAR_SOBRE_CUENTA_PROPIA);
 	}

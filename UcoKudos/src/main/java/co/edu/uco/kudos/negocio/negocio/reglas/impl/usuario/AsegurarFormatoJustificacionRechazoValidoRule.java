@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorAtributos;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
@@ -21,7 +20,9 @@ public final class AsegurarFormatoJustificacionRechazoValidoRule implements Rule
 	}
 
 	@Override
-	public void ejecutar(String justificacion, DAOFactory daoFactory) {
+	public void ejecutar(String... datos) {
+		var justificacion = datos[0];
+
 		ValidadorAtributos.asegurarTexto(justificacion, LONGITUD_MINIMA_JUSTIFICACION,
 				LONGITUD_MAXIMA_JUSTIFICACION, CatalogoMensajes.Reglas.JUSTIFICACION_RECHAZO_NO_VALIDA);
 	}

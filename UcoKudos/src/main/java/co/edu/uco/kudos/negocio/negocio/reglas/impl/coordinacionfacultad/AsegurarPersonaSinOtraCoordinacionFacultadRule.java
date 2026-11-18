@@ -8,21 +8,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarPersonaSinOtraCoordinacionFacultadRule implements Rule<CoordinacionFacultadEntidad> {
+public final class AsegurarPersonaSinOtraCoordinacionFacultadRule implements Rule<Object> {
 
-	private static final Rule<CoordinacionFacultadEntidad> INSTANCIA =
-			new AsegurarPersonaSinOtraCoordinacionFacultadRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarPersonaSinOtraCoordinacionFacultadRule();
 
 	private AsegurarPersonaSinOtraCoordinacionFacultadRule() {
 
 	}
 
-	public static Rule<CoordinacionFacultadEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CoordinacionFacultadEntidad coordinacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var coordinacion = (CoordinacionFacultadEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var sinUnidad = UtilUUID.obtenerUUIDDefecto();
 		var idPersona = coordinacion.getUsuario().getId();
 		var coordinaOtraUnidad = !ConsultorVigencias.coordinacionesFacultad(daoFactory, idPersona,

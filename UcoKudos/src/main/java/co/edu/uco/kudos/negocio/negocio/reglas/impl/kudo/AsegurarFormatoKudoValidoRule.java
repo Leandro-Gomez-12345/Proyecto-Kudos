@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.kudo;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.KudoEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorAtributos;
@@ -21,7 +20,9 @@ public final class AsegurarFormatoKudoValidoRule implements Rule<KudoEntidad> {
 	}
 
 	@Override
-	public void ejecutar(KudoEntidad kudo, DAOFactory daoFactory) {
+	public void ejecutar(KudoEntidad... datos) {
+		var kudo = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(kudo.getDestinatario().getId(),
 				CatalogoMensajes.Reglas.KUDO_DESTINATARIO_OBLIGATORIO);
 		ValidadorAtributos.asegurarReferencia(kudo.getCategoria().getId(),

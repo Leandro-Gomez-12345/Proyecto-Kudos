@@ -11,7 +11,6 @@ import co.edu.uco.kudos.negocio.negocio.assembler.impl.ProgramaAcademicoEntidadA
 import co.edu.uco.kudos.negocio.negocio.assembler.impl.VinculacionAcademicaEntidadAssembler;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.Auditor;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorVigencias;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.UsuarioConProgramas;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.coordinacionprograma.AsegurarUsuarioCoordinaElProgramaRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.programaacademico.AsegurarProgramaAcademicoExisteRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarPersonaEsEstudianteODocenteRule;
@@ -50,7 +49,7 @@ public final class VinculacionAcademicaNegocioImpl implements VinculacionAcademi
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioEsCoordinadorProgramaRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoVinculacionAcademicaValidoRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
+		AsegurarFormatoVinculacionAcademicaValidoRule.obtenerInstancia().ejecutar(vinculacion);
 		AsegurarProgramaAcademicoExisteRule.obtenerInstancia().ejecutar(idPrograma, daoFactory);
 		AsegurarUsuarioCoordinaElProgramaRule.obtenerInstancia().ejecutar(idPrograma, daoFactory);
 		AsegurarPersonaIndicadaActivaRule.obtenerInstancia().ejecutar(idPersona, daoFactory);
@@ -76,10 +75,10 @@ public final class VinculacionAcademicaNegocioImpl implements VinculacionAcademi
 		var vinculacion = daoFactory.obtenerVinculacionAcademicaDAO().consultarPorId(id);
 		AsegurarUsuarioCoordinaElProgramaRule.obtenerInstancia().ejecutar(vinculacion.getProgramaAcademico().getId(),
 				daoFactory);
-		AsegurarVinculacionAcademicaVigenteRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
+		AsegurarVinculacionAcademicaVigenteRule.obtenerInstancia().ejecutar(vinculacion);
 		vinculacion.setFechaDesvinculacion(UtilFecha.esValorDefecto(datos.getFechaDesvinculacion())
 				? UtilFecha.obtenerFechaActual() : datos.getFechaDesvinculacion());
-		AsegurarFormatoDesvinculacionValidoRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
+		AsegurarFormatoDesvinculacionValidoRule.obtenerInstancia().ejecutar(vinculacion);
 
 		daoFactory.obtenerVinculacionAcademicaDAO().actualizar(id, vinculacion);
 		Auditor.registrar(daoFactory, EventoAuditable.DESVINCULAR_PERSONA_DE_PROGRAMA_ACADEMICO, id,
@@ -92,12 +91,12 @@ public final class VinculacionAcademicaNegocioImpl implements VinculacionAcademi
 		var vinculacion = VinculacionAcademicaEntidadAssembler.obtenerInstancia().convertirAEntidad(datos);
 		var programasElegidos = ProgramaAcademicoEntidadAssembler.obtenerInstancia().convertirAEntidad(programas);
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(vinculacion.getUsuario().getId());
-		var registro = new UsuarioConProgramas(usuario, programasElegidos, vinculacion.getFechaVinculacion());
 
 		for (var programa : programasElegidos) {
 			AsegurarProgramaAcademicoExisteRule.obtenerInstancia().ejecutar(programa.getId(), daoFactory);
 		}
-		VincularProgramasAlRegistrarseRule.obtenerInstancia().ejecutar(registro, daoFactory);
+		VincularProgramasAlRegistrarseRule.obtenerInstancia().ejecutar(usuario, programasElegidos,
+				vinculacion.getFechaVinculacion(), daoFactory);
 	}
 
 	@Override
@@ -110,7 +109,7 @@ public final class VinculacionAcademicaNegocioImpl implements VinculacionAcademi
 		var vigentes = ConsultorVigencias.vinculaciones(daoFactory, vinculacion.getUsuario().getId(),
 				UtilUUID.obtenerUUIDDefecto());
 		for (var vigente : vigentes) {
-			AsegurarVinculacionAcademicaVigenteRule.obtenerInstancia().ejecutar(vigente, daoFactory);
+			AsegurarVinculacionAcademicaVigenteRule.obtenerInstancia().ejecutar(vigente);
 		}
 		DesvincularAlRechazarODesactivarRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
 	}

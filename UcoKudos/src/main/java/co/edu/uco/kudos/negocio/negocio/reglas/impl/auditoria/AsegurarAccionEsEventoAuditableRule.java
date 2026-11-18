@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.auditoria;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.AuditoriaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
@@ -20,7 +19,9 @@ public final class AsegurarAccionEsEventoAuditableRule implements Rule<Auditoria
 	}
 
 	@Override
-	public void ejecutar(AuditoriaEntidad auditoria, DAOFactory daoFactory) {
+	public void ejecutar(AuditoriaEntidad... datos) {
+		var auditoria = datos[0];
+
 		var esEventoAuditable = EventoAuditable.existe(auditoria.getAccion(), auditoria.getObjetoAfectado());
 		ValidadorNegocio.asegurarCondicion(esEventoAuditable, CatalogoMensajes.Reglas.AUDITORIA_NO_REGISTRADA);
 	}

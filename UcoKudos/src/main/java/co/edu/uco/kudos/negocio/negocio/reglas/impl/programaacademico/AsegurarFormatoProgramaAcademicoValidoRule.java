@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.programaacademico;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.ProgramaAcademicoEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorAtributos;
@@ -19,9 +18,11 @@ public final class AsegurarFormatoProgramaAcademicoValidoRule implements Rule<Pr
 	}
 
 	@Override
-	public void ejecutar(ProgramaAcademicoEntidad programa, DAOFactory daoFactory) {
+	public void ejecutar(ProgramaAcademicoEntidad... datos) {
+		var programa = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(programa.getFacultad().getId(),
 				CatalogoMensajes.Reglas.PROGRAMA_FACULTAD_OBLIGATORIA);
-		AsegurarFormatoNombreProgramaAcademicoValidoRule.obtenerInstancia().ejecutar(programa, daoFactory);
+		AsegurarFormatoNombreProgramaAcademicoValidoRule.obtenerInstancia().ejecutar(programa);
 	}
 }

@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorVigencias;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFecha;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class DesvincularAlRechazarODesactivarRule implements Rule<VinculacionAcademicaEntidad> {
+public final class DesvincularAlRechazarODesactivarRule implements Rule<Object> {
 
-	private static final Rule<VinculacionAcademicaEntidad> INSTANCIA = new DesvincularAlRechazarODesactivarRule();
+	private static final Rule<Object> INSTANCIA = new DesvincularAlRechazarODesactivarRule();
 
 	private DesvincularAlRechazarODesactivarRule() {
 
 	}
 
-	public static Rule<VinculacionAcademicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(VinculacionAcademicaEntidad vinculacion, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var vinculacion = (VinculacionAcademicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var fechaDesvinculacion = UtilFecha.esValorDefecto(vinculacion.getFechaDesvinculacion())
 				? UtilFecha.obtenerFechaActual() : vinculacion.getFechaDesvinculacion();
 		var sinPrograma = UtilUUID.obtenerUUIDDefecto();

@@ -33,7 +33,7 @@ public final class FacultadNegocioImpl implements FacultadNegocio {
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioEsAdministradorRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoFacultadValidoRule.obtenerInstancia().ejecutar(facultad, daoFactory);
+		AsegurarFormatoFacultadValidoRule.obtenerInstancia().ejecutar(facultad);
 		AsegurarNombreFacultadNoExistaRule.obtenerInstancia().ejecutar(facultad, daoFactory);
 		AsegurarIdFacultadUnicoRule.obtenerInstancia().ejecutar(facultad, daoFactory);
 
@@ -63,7 +63,7 @@ public final class FacultadNegocioImpl implements FacultadNegocio {
 		var facultad = daoFactory.obtenerFacultadDAO().consultarPorId(id);
 		var nombreAnterior = facultad.getNombre();
 		facultad.setNombre(datos.getNombre());
-		AsegurarFormatoFacultadValidoRule.obtenerInstancia().ejecutar(facultad, daoFactory);
+		AsegurarFormatoFacultadValidoRule.obtenerInstancia().ejecutar(facultad);
 		AsegurarNombreFacultadNoExistaRule.obtenerInstancia().ejecutar(facultad, daoFactory);
 
 		daoFactory.obtenerFacultadDAO().actualizar(id, facultad);

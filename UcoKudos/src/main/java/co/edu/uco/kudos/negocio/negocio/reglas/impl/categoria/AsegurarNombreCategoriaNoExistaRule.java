@@ -6,20 +6,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 
-public final class AsegurarNombreCategoriaNoExistaRule implements Rule<CategoriaEntidad> {
+public final class AsegurarNombreCategoriaNoExistaRule implements Rule<Object> {
 
-	private static final Rule<CategoriaEntidad> INSTANCIA = new AsegurarNombreCategoriaNoExistaRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarNombreCategoriaNoExistaRule();
 
 	private AsegurarNombreCategoriaNoExistaRule() {
 
 	}
 
-	public static Rule<CategoriaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(CategoriaEntidad categoria, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var categoria = (CategoriaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var filtro = new CategoriaEntidad();
 		filtro.setNombre(categoria.getNombre());
 		var coincidencias = daoFactory.obtenerCategoriaDAO().consultarPorFiltro(filtro);

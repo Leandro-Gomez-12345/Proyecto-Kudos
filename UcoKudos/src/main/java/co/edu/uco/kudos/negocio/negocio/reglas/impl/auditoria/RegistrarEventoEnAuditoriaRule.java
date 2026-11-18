@@ -6,20 +6,23 @@ import co.edu.uco.kudos.negocio.negocio.assembler.impl.AuditoriaEntidadAssembler
 import co.edu.uco.kudos.negocio.negocio.impl.AuditoriaNegocioImpl;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 
-public final class RegistrarEventoEnAuditoriaRule implements Rule<AuditoriaEntidad> {
+public final class RegistrarEventoEnAuditoriaRule implements Rule<Object> {
 
-	private static final Rule<AuditoriaEntidad> INSTANCIA = new RegistrarEventoEnAuditoriaRule();
+	private static final Rule<Object> INSTANCIA = new RegistrarEventoEnAuditoriaRule();
 
 	private RegistrarEventoEnAuditoriaRule() {
 
 	}
 
-	public static Rule<AuditoriaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(AuditoriaEntidad auditoria, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var auditoria = (AuditoriaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var auditoriaNegocio = new AuditoriaNegocioImpl(daoFactory);
 		auditoriaNegocio.registrarAuditoria(AuditoriaEntidadAssembler.obtenerInstancia().convertirADominio(auditoria));
 	}

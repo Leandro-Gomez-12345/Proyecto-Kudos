@@ -8,20 +8,23 @@ import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 
-public final class RegistrarVetoDirectoComoRevisionReplicaRule implements Rule<RevisionReplicaEntidad> {
+public final class RegistrarVetoDirectoComoRevisionReplicaRule implements Rule<Object> {
 
-	private static final Rule<RevisionReplicaEntidad> INSTANCIA = new RegistrarVetoDirectoComoRevisionReplicaRule();
+	private static final Rule<Object> INSTANCIA = new RegistrarVetoDirectoComoRevisionReplicaRule();
 
 	private RegistrarVetoDirectoComoRevisionReplicaRule() {
 
 	}
 
-	public static Rule<RevisionReplicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(RevisionReplicaEntidad revision, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var revision = (RevisionReplicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var ahora = UtilFechaHora.obtenerFechaHoraActual();
 		revision.getModerador().setId(ContextoEjecucion.obtenerIdEjecutor());
 		revision.setFechaInicio(ahora);

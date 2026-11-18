@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.EstadosContenido;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 
-public final class LiberarKudoAlCerrarRevisionSinVetoRule implements Rule<UUID> {
+public final class LiberarKudoAlCerrarRevisionSinVetoRule implements Rule<Object> {
 
-	private static final Rule<UUID> INSTANCIA = new LiberarKudoAlCerrarRevisionSinVetoRule();
+	private static final Rule<Object> INSTANCIA = new LiberarKudoAlCerrarRevisionSinVetoRule();
 
 	private LiberarKudoAlCerrarRevisionSinVetoRule() {
 
 	}
 
-	public static Rule<UUID> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UUID id, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var id = (UUID) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		EstadosContenido.cambiarEstadoKudo(daoFactory, id, NombresCatalogo.EstadoContenido.VISIBLE);
 	}
 }

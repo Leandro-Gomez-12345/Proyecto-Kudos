@@ -39,14 +39,14 @@ public final class CalificacionReplicaNegocioImpl implements CalificacionReplica
 		var idReplica = calificacion.getReplica().getId();
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
-		AsegurarFormatoCalificacionReplicaValidoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		AsegurarFormatoCalificacionReplicaValidoRule.obtenerInstancia().ejecutar(calificacion);
 		AsegurarReplicaExisteRule.obtenerInstancia().ejecutar(idReplica, daoFactory);
 		AsegurarReplicaAdmiteInteraccionRule.obtenerInstancia().ejecutar(idReplica, daoFactory);
 		AsegurarKudoAdmiteInteraccionRule.obtenerInstancia().ejecutar(idKudoDe(idReplica), daoFactory);
 		AsegurarCalificadorNoEsAutorDeReplicaRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
 		AsegurarUnicaCalificacionReplicaPorPersonaRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
 		AsegurarIdCalificacionReplicaUnicoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
-		AsignarAutorYFechaCalificacionReplicaRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		AsignarAutorYFechaCalificacionReplicaRule.obtenerInstancia().ejecutar(calificacion);
 
 		daoFactory.obtenerCalificacionReplicaDAO().crear(calificacion);
 		Auditor.registrar(daoFactory, EventoAuditable.CALIFICAR_REPLICA, calificacion.getId(),
@@ -67,9 +67,9 @@ public final class CalificacionReplicaNegocioImpl implements CalificacionReplica
 		AsegurarKudoAdmiteInteraccionRule.obtenerInstancia().ejecutar(idKudoDe(idReplica), daoFactory);
 		var estrellasAnteriores = calificacion.getEstrellas();
 		calificacion.setEstrellas(datos.getEstrellas());
-		AsegurarFormatoCalificacionReplicaValidoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		AsegurarFormatoCalificacionReplicaValidoRule.obtenerInstancia().ejecutar(calificacion);
 		AsegurarEstrellasDistintasEnCalificacionReplicaRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
-		ActualizarFechaCalificacionReplicaRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		ActualizarFechaCalificacionReplicaRule.obtenerInstancia().ejecutar(calificacion);
 
 		daoFactory.obtenerCalificacionReplicaDAO().actualizar(id, calificacion);
 		Auditor.registrar(daoFactory, EventoAuditable.CAMBIAR_CALIFICACION_REPLICA, id,

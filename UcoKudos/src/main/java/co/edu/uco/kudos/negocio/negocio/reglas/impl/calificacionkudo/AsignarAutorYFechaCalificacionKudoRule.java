@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.calificacionkudo;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.CalificacionKudoEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
@@ -19,7 +18,9 @@ public final class AsignarAutorYFechaCalificacionKudoRule implements Rule<Califi
 	}
 
 	@Override
-	public void ejecutar(CalificacionKudoEntidad calificacion, DAOFactory daoFactory) {
+	public void ejecutar(CalificacionKudoEntidad... datos) {
+		var calificacion = datos[0];
+
 		calificacion.getUsuario().setId(ContextoEjecucion.obtenerIdEjecutor());
 		calificacion.setFechaCalificacion(UtilFechaHora.obtenerFechaHoraActual());
 	}

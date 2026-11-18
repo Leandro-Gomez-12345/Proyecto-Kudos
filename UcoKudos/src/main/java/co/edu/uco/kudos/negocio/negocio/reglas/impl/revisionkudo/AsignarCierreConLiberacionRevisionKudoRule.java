@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorCatalogos;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 
-public final class AsignarCierreConLiberacionRevisionKudoRule implements Rule<RevisionKudoEntidad> {
+public final class AsignarCierreConLiberacionRevisionKudoRule implements Rule<Object> {
 
-	private static final Rule<RevisionKudoEntidad> INSTANCIA = new AsignarCierreConLiberacionRevisionKudoRule();
+	private static final Rule<Object> INSTANCIA = new AsignarCierreConLiberacionRevisionKudoRule();
 
 	private AsignarCierreConLiberacionRevisionKudoRule() {
 
 	}
 
-	public static Rule<RevisionKudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(RevisionKudoEntidad revision, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var revision = (RevisionKudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		revision.setEstadoRevision(ConsultorCatalogos.obtenerEstadoRevision(daoFactory,
 				NombresCatalogo.EstadoRevision.CONTENIDO_LIBERADO));
 		revision.setFechaCierre(UtilFechaHora.obtenerFechaHoraActual());

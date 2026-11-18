@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 
-public final class AsegurarRevisionKudoNoRepetidaRule implements Rule<RevisionKudoEntidad> {
+public final class AsegurarRevisionKudoNoRepetidaRule implements Rule<Object> {
 
-	private static final Rule<RevisionKudoEntidad> INSTANCIA = new AsegurarRevisionKudoNoRepetidaRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarRevisionKudoNoRepetidaRule();
 
 	private AsegurarRevisionKudoNoRepetidaRule() {
 
 	}
 
-	public static Rule<RevisionKudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(RevisionKudoEntidad revision, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var revision = (RevisionKudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var filtro = new RevisionKudoEntidad();
 		filtro.setKudo(revision.getKudo());
 		filtro.setFechaInicio(UtilFechaHora.obtenerFechaHoraActual());

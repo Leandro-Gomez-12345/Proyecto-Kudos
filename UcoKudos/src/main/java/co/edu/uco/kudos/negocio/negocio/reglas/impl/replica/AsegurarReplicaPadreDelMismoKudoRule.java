@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.utilitarios.UtilObjeto;
 
-public final class AsegurarReplicaPadreDelMismoKudoRule implements Rule<ReplicaEntidad> {
+public final class AsegurarReplicaPadreDelMismoKudoRule implements Rule<Object> {
 
-	private static final Rule<ReplicaEntidad> INSTANCIA = new AsegurarReplicaPadreDelMismoKudoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarReplicaPadreDelMismoKudoRule();
 
 	private AsegurarReplicaPadreDelMismoKudoRule() {
 
 	}
 
-	public static Rule<ReplicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(ReplicaEntidad replica, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var replica = (ReplicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		if (UtilObjeto.esNulo(replica.getReplicaPadre())) {
 			return;
 		}

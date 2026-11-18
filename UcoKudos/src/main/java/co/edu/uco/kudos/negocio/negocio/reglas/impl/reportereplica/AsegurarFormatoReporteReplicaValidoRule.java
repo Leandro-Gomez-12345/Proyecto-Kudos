@@ -10,9 +10,9 @@ import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
 
-public final class AsegurarFormatoReporteReplicaValidoRule implements Rule<ReporteReplicaEntidad> {
+public final class AsegurarFormatoReporteReplicaValidoRule implements Rule<Object> {
 
-	private static final Rule<ReporteReplicaEntidad> INSTANCIA = new AsegurarFormatoReporteReplicaValidoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarFormatoReporteReplicaValidoRule();
 
 	private static final int LONGITUD_MINIMA_OBLIGATORIA = 1;
 	private static final int LONGITUD_MINIMA_OPCIONAL = 0;
@@ -22,12 +22,15 @@ public final class AsegurarFormatoReporteReplicaValidoRule implements Rule<Repor
 
 	}
 
-	public static Rule<ReporteReplicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(ReporteReplicaEntidad reporte, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var reporte = (ReporteReplicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		ValidadorAtributos.asegurarReferencia(reporte.getReplica().getId(),
 				CatalogoMensajes.Reglas.REPORTE_REPLICA_OBLIGATORIO);
 		ValidadorAtributos.asegurarReferencia(reporte.getMotivo().getId(),

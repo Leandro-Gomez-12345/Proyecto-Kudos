@@ -19,8 +19,7 @@ public final class EstadoRevisionNegocioImpl implements EstadoRevisionNegocio {
 
 	@Override
 	public List<EstadoRevisionDominio> consultarEstadosRevision() {
-		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(),
-				daoFactory);
+		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		var registros = daoFactory.obtenerEstadoRevisionDAO().consultarTodos();
 		return EstadoRevisionEntidadAssembler.obtenerInstancia().convertirADominio(registros);
 	}

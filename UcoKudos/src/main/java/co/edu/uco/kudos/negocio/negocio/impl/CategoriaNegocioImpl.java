@@ -40,10 +40,10 @@ public final class CategoriaNegocioImpl implements CategoriaNegocio {
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioGestionaCategoriasRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoCategoriaValidoRule.obtenerInstancia().ejecutar(categoria, daoFactory);
+		AsegurarFormatoCategoriaValidoRule.obtenerInstancia().ejecutar(categoria);
 		AsegurarNombreCategoriaNoExistaRule.obtenerInstancia().ejecutar(categoria, daoFactory);
 		AsegurarIdCategoriaUnicoRule.obtenerInstancia().ejecutar(categoria, daoFactory);
-		AsignarCategoriaActivaAlCrearRule.obtenerInstancia().ejecutar(categoria, daoFactory);
+		AsignarCategoriaActivaAlCrearRule.obtenerInstancia().ejecutar(categoria);
 
 		daoFactory.obtenerCategoriaDAO().crear(categoria);
 		Auditor.registrar(daoFactory, EventoAuditable.REGISTRAR_CATEGORIA, categoria.getId(),
@@ -71,7 +71,7 @@ public final class CategoriaNegocioImpl implements CategoriaNegocio {
 		var categoria = daoFactory.obtenerCategoriaDAO().consultarPorId(id);
 		var nombreAnterior = categoria.getNombre();
 		categoria.setNombre(datos.getNombre());
-		AsegurarFormatoNombreCategoriaValidoRule.obtenerInstancia().ejecutar(categoria, daoFactory);
+		AsegurarFormatoNombreCategoriaValidoRule.obtenerInstancia().ejecutar(categoria);
 		AsegurarNombreCategoriaNoExistaRule.obtenerInstancia().ejecutar(categoria, daoFactory);
 
 		daoFactory.obtenerCategoriaDAO().actualizar(id, categoria);
@@ -91,7 +91,7 @@ public final class CategoriaNegocioImpl implements CategoriaNegocio {
 		var categoria = daoFactory.obtenerCategoriaDAO().consultarPorId(id);
 		var descripcionAnterior = categoria.getDescripcion();
 		categoria.setDescripcion(datos.getDescripcion());
-		AsegurarFormatoDescripcionCategoriaValidoRule.obtenerInstancia().ejecutar(categoria, daoFactory);
+		AsegurarFormatoDescripcionCategoriaValidoRule.obtenerInstancia().ejecutar(categoria);
 
 		daoFactory.obtenerCategoriaDAO().actualizar(id, categoria);
 		Auditor.registrar(daoFactory, EventoAuditable.CAMBIAR_DESCRIPCION_CATEGORIA, id,

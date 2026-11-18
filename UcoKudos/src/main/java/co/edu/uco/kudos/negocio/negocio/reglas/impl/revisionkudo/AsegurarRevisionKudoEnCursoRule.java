@@ -9,20 +9,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 
-public final class AsegurarRevisionKudoEnCursoRule implements Rule<UUID> {
+public final class AsegurarRevisionKudoEnCursoRule implements Rule<Object> {
 
-	private static final Rule<UUID> INSTANCIA = new AsegurarRevisionKudoEnCursoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarRevisionKudoEnCursoRule();
 
 	private AsegurarRevisionKudoEnCursoRule() {
 
 	}
 
-	public static Rule<UUID> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UUID id, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var id = (UUID) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var revision = daoFactory.obtenerRevisionKudoDAO().consultarPorId(id);
 		var estaEnCurso = ConsultorCatalogos.coincide(ConsultorCatalogos.nombreEstadoRevision(daoFactory,
 				revision.getEstadoRevision().getId()), NombresCatalogo.EstadoRevision.EN_CURSO);

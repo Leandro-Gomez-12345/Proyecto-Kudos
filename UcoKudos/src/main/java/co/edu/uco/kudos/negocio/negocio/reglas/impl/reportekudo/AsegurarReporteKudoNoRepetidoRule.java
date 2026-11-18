@@ -7,20 +7,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorNegocio;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
 
-public final class AsegurarReporteKudoNoRepetidoRule implements Rule<ReporteKudoEntidad> {
+public final class AsegurarReporteKudoNoRepetidoRule implements Rule<Object> {
 
-	private static final Rule<ReporteKudoEntidad> INSTANCIA = new AsegurarReporteKudoNoRepetidoRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarReporteKudoNoRepetidoRule();
 
 	private AsegurarReporteKudoNoRepetidoRule() {
 
 	}
 
-	public static Rule<ReporteKudoEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(ReporteKudoEntidad reporte, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var reporte = (ReporteKudoEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var filtro = new ReporteKudoEntidad();
 		filtro.setKudo(reporte.getKudo());
 		filtro.getUsuario().setId(ContextoEjecucion.obtenerIdEjecutor());

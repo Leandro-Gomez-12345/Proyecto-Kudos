@@ -11,20 +11,23 @@ import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.utilitarios.UtilObjeto;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
-public final class AsegurarConversacionSinCiclosRule implements Rule<ReplicaEntidad> {
+public final class AsegurarConversacionSinCiclosRule implements Rule<Object> {
 
-	private static final Rule<ReplicaEntidad> INSTANCIA = new AsegurarConversacionSinCiclosRule();
+	private static final Rule<Object> INSTANCIA = new AsegurarConversacionSinCiclosRule();
 
 	private AsegurarConversacionSinCiclosRule() {
 
 	}
 
-	public static Rule<ReplicaEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(ReplicaEntidad replica, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var replica = (ReplicaEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		var ancestro = replica.getReplicaPadre();
 		var visitados = new HashSet<UUID>();
 		visitados.add(replica.getId());

@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.categoria;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.CategoriaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.FormatosAtributos;
@@ -23,7 +22,9 @@ public final class AsegurarFormatoNombreCategoriaValidoRule implements Rule<Cate
 	}
 
 	@Override
-	public void ejecutar(CategoriaEntidad categoria, DAOFactory daoFactory) {
+	public void ejecutar(CategoriaEntidad... datos) {
+		var categoria = datos[0];
+
 		ValidadorAtributos.asegurarTexto(categoria.getNombre(), LONGITUD_MINIMA_NOMBRE, LONGITUD_MAXIMA_NOMBRE,
 				CatalogoMensajes.Reglas.CATEGORIA_NOMBRE_NO_VALIDO);
 		ValidadorAtributos.asegurarFormato(categoria.getNombre(), FormatosAtributos.SOLO_LETRAS_Y_ESPACIOS,

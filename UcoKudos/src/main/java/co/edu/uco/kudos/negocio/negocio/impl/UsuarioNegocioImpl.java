@@ -19,8 +19,6 @@ import co.edu.uco.kudos.negocio.negocio.assembler.impl.UsuarioEntidadAssembler;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.Auditor;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorCatalogos;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.EstadosCuenta;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.UsuarioConCodigo;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.UsuarioConProgramas;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.coordinacionfacultad.FinalizarCoordinacionFacultadAlSuspenderODesactivarRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.coordinacionprograma.FinalizarCoordinacionProgramaAlSuspenderODesactivarRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.programaacademico.AsegurarProgramaAcademicoExisteRule;
@@ -88,12 +86,11 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 	public UsuarioDominio registrarUsuario(UsuarioDominio datos, List<ProgramaAcademicoDominio> programas) {
 		var usuario = UsuarioEntidadAssembler.obtenerInstancia().convertirAEntidad(datos);
 		var programasElegidos = ProgramaAcademicoEntidadAssembler.obtenerInstancia().convertirAEntidad(programas);
-		var registro = new UsuarioConProgramas(usuario, programasElegidos, UtilFecha.obtenerFechaActual());
 
-		AsegurarFormatoRegistroUsuarioValidoRule.obtenerInstancia().ejecutar(usuario, daoFactory);
+		AsegurarFormatoRegistroUsuarioValidoRule.obtenerInstancia().ejecutar(usuario);
 		AsegurarRolExisteRule.obtenerInstancia().ejecutar(usuario.getRol().getId(), daoFactory);
 		AsegurarRolPermiteRegistroPropioRule.obtenerInstancia().ejecutar(usuario, daoFactory);
-		AsegurarProgramasSegunRolRule.obtenerInstancia().ejecutar(registro, daoFactory);
+		AsegurarProgramasSegunRolRule.obtenerInstancia().ejecutar(usuario, programasElegidos, daoFactory);
 		asegurarQueLosProgramasExisten(programasElegidos);
 		AsegurarCorreoUsuarioNoExistaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 		AsegurarCelularUsuarioNoExistaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
@@ -101,7 +98,8 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 		AsignarEstadoInicialUsuarioRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
 		daoFactory.obtenerUsuarioDAO().crear(usuario);
-		VincularProgramasAlRegistrarseRule.obtenerInstancia().ejecutar(registro, daoFactory);
+		VincularProgramasAlRegistrarseRule.obtenerInstancia().ejecutar(usuario, programasElegidos,
+				UtilFecha.obtenerFechaActual(), daoFactory);
 		Auditor.registrarComo(daoFactory, usuario.getId(), EventoAuditable.REGISTRAR_USUARIO, usuario.getId(),
 				detalleDelRol("Registro presentado con el rol ", usuario));
 		return UsuarioEntidadAssembler.obtenerInstancia().convertirADominio(usuario);
@@ -119,14 +117,14 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		usuario.setRol(rolElegido);
-		var registro = new UsuarioConProgramas(usuario, programasElegidos, UtilFecha.obtenerFechaActual());
 		AsegurarRolPermiteRegistroPropioRule.obtenerInstancia().ejecutar(usuario, daoFactory);
-		AsegurarProgramasSegunRolRule.obtenerInstancia().ejecutar(registro, daoFactory);
+		AsegurarProgramasSegunRolRule.obtenerInstancia().ejecutar(usuario, programasElegidos, daoFactory);
 		asegurarQueLosProgramasExisten(programasElegidos);
 		AsignarCuentaPendienteNuevamenteRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
 		daoFactory.obtenerUsuarioDAO().actualizar(id, usuario);
-		VincularProgramasAlRegistrarseRule.obtenerInstancia().ejecutar(registro, daoFactory);
+		VincularProgramasAlRegistrarseRule.obtenerInstancia().ejecutar(usuario, programasElegidos,
+				UtilFecha.obtenerFechaActual(), daoFactory);
 		Auditor.registrarComo(daoFactory, id, EventoAuditable.PRESENTAR_NUEVAMENTE_REGISTRO_USUARIO, id,
 				detalleDelRol("Registro presentado de nuevo con el rol ", usuario));
 	}
@@ -149,8 +147,8 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
-		AsegurarCorreoSinVerificarRule.obtenerInstancia().ejecutar(usuario, daoFactory);
-		AsegurarCodigoCorreoValidoRule.obtenerInstancia().ejecutar(new UsuarioConCodigo(usuario, codigo), daoFactory);
+		AsegurarCorreoSinVerificarRule.obtenerInstancia().ejecutar(usuario);
+		AsegurarCodigoCorreoValidoRule.obtenerInstancia().ejecutar(usuario, codigo);
 		usuario.setCorreoVerificado(UtilBooleano.SI);
 		ActivarCuentaCuandoCumplaCondicionesRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
@@ -164,8 +162,8 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
-		AsegurarCelularSinVerificarRule.obtenerInstancia().ejecutar(usuario, daoFactory);
-		AsegurarCodigoCelularValidoRule.obtenerInstancia().ejecutar(new UsuarioConCodigo(usuario, codigo), daoFactory);
+		AsegurarCelularSinVerificarRule.obtenerInstancia().ejecutar(usuario);
+		AsegurarCodigoCelularValidoRule.obtenerInstancia().ejecutar(usuario, codigo);
 		usuario.setCelularVerificado(UtilBooleano.SI);
 		ActivarCuentaCuandoCumplaCondicionesRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
@@ -211,13 +209,13 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 	public UsuarioDominio cambiarNombreUsuario(UUID id, UsuarioDominio datos) {
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
-		AsegurarUsuarioEsTitularRule.obtenerInstancia().ejecutar(id, daoFactory);
+		AsegurarUsuarioEsTitularRule.obtenerInstancia().ejecutar(id);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		var nombreAnterior = nombreCompleto(usuario);
 		usuario.setNombre(datos.getNombre());
 		usuario.setApellido(datos.getApellido());
-		AsegurarFormatoNombreUsuarioValidoRule.obtenerInstancia().ejecutar(usuario, daoFactory);
+		AsegurarFormatoNombreUsuarioValidoRule.obtenerInstancia().ejecutar(usuario);
 
 		daoFactory.obtenerUsuarioDAO().actualizar(id, usuario);
 		Auditor.registrar(daoFactory, EventoAuditable.CAMBIAR_NOMBRE_USUARIO, id,
@@ -229,12 +227,12 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 	public void cambiarCorreoUsuario(UUID id, UsuarioDominio datos) {
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
-		AsegurarUsuarioEsTitularRule.obtenerInstancia().ejecutar(id, daoFactory);
+		AsegurarUsuarioEsTitularRule.obtenerInstancia().ejecutar(id);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		var correoAnterior = usuario.getCorreoInstitucional();
 		usuario.setCorreoInstitucional(datos.getCorreoInstitucional());
-		AsegurarFormatoCorreoUsuarioValidoRule.obtenerInstancia().ejecutar(usuario, daoFactory);
+		AsegurarFormatoCorreoUsuarioValidoRule.obtenerInstancia().ejecutar(usuario);
 		AsegurarCorreoUsuarioNoExistaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 		ExigirNuevaVerificacionCorreoRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
@@ -248,12 +246,12 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 	public void cambiarCelularUsuario(UUID id, UsuarioDominio datos) {
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
-		AsegurarUsuarioEsTitularRule.obtenerInstancia().ejecutar(id, daoFactory);
+		AsegurarUsuarioEsTitularRule.obtenerInstancia().ejecutar(id);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		var celularAnterior = usuario.getCelular();
 		usuario.setCelular(datos.getCelular());
-		AsegurarFormatoCelularUsuarioValidoRule.obtenerInstancia().ejecutar(usuario, daoFactory);
+		AsegurarFormatoCelularUsuarioValidoRule.obtenerInstancia().ejecutar(usuario);
 		AsegurarCelularUsuarioNoExistaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 		ExigirNuevaVerificacionCelularRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
@@ -347,7 +345,7 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
 		AsegurarCuentaPendienteAprobacionRule.obtenerInstancia().ejecutar(id, daoFactory);
 		AsegurarAprobadorCorrespondeAlRolRule.obtenerInstancia().ejecutar(id, daoFactory);
-		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(id, daoFactory);
+		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(id);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		AsegurarUnicoRectorVigenteRule.obtenerInstancia().ejecutar(usuario, daoFactory);
@@ -367,8 +365,8 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
 		AsegurarCuentaPendienteAprobacionRule.obtenerInstancia().ejecutar(id, daoFactory);
 		AsegurarAprobadorCorrespondeAlRolRule.obtenerInstancia().ejecutar(id, daoFactory);
-		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(id, daoFactory);
-		AsegurarFormatoJustificacionRechazoValidoRule.obtenerInstancia().ejecutar(justificacion, daoFactory);
+		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(id);
+		AsegurarFormatoJustificacionRechazoValidoRule.obtenerInstancia().ejecutar(justificacion);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		AsignarCuentaRechazadaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
@@ -385,7 +383,7 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 	private void asegurarAutoridadSobreLaCuenta(UUID idPersona) {
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(idPersona, daoFactory);
-		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(idPersona, daoFactory);
+		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(idPersona);
 		AsegurarAutoridadGestionaPersonaRule.obtenerInstancia().ejecutar(idPersona, daoFactory);
 	}
 
@@ -414,7 +412,7 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
 		AsegurarUsuarioEsAdministradorRule.obtenerInstancia().ejecutar(idEjecutor, daoFactory);
-		AsegurarFormatoRegistroPorAdministradorValidoRule.obtenerInstancia().ejecutar(usuario, daoFactory);
+		AsegurarFormatoRegistroPorAdministradorValidoRule.obtenerInstancia().ejecutar(usuario);
 		AsegurarCorreoUsuarioNoExistaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 		AsegurarCelularUsuarioNoExistaRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 		return usuario;

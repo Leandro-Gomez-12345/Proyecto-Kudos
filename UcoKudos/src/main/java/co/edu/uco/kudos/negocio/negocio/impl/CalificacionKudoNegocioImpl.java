@@ -38,13 +38,13 @@ public final class CalificacionKudoNegocioImpl implements CalificacionKudoNegoci
 		var idKudo = calificacion.getKudo().getId();
 
 		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
-		AsegurarFormatoCalificacionKudoValidoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		AsegurarFormatoCalificacionKudoValidoRule.obtenerInstancia().ejecutar(calificacion);
 		AsegurarKudoExisteRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		AsegurarKudoAdmiteInteraccionRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		AsegurarCalificadorNoEsAutorDeKudoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
 		AsegurarUnicaCalificacionKudoPorPersonaRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
 		AsegurarIdCalificacionKudoUnicoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
-		AsignarAutorYFechaCalificacionKudoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		AsignarAutorYFechaCalificacionKudoRule.obtenerInstancia().ejecutar(calificacion);
 
 		daoFactory.obtenerCalificacionKudoDAO().crear(calificacion);
 		Auditor.registrar(daoFactory, EventoAuditable.CALIFICAR_KUDO, calificacion.getId(),
@@ -64,9 +64,9 @@ public final class CalificacionKudoNegocioImpl implements CalificacionKudoNegoci
 		AsegurarKudoAdmiteInteraccionRule.obtenerInstancia().ejecutar(idKudo, daoFactory);
 		var estrellasAnteriores = calificacion.getEstrellas();
 		calificacion.setEstrellas(datos.getEstrellas());
-		AsegurarFormatoCalificacionKudoValidoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		AsegurarFormatoCalificacionKudoValidoRule.obtenerInstancia().ejecutar(calificacion);
 		AsegurarEstrellasDistintasEnCalificacionKudoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
-		ActualizarFechaCalificacionKudoRule.obtenerInstancia().ejecutar(calificacion, daoFactory);
+		ActualizarFechaCalificacionKudoRule.obtenerInstancia().ejecutar(calificacion);
 
 		daoFactory.obtenerCalificacionKudoDAO().actualizar(id, calificacion);
 		Auditor.registrar(daoFactory, EventoAuditable.CAMBIAR_CALIFICACION_KUDO, id,

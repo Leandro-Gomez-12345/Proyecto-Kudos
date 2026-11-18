@@ -19,8 +19,7 @@ public final class MotivoNegocioImpl implements MotivoNegocio {
 
 	@Override
 	public List<MotivoDominio> consultarMotivos() {
-		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(),
-				daoFactory);
+		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		var registros = daoFactory.obtenerMotivoDAO().consultarTodos();
 		return MotivoEntidadAssembler.obtenerInstancia().convertirADominio(registros);
 	}

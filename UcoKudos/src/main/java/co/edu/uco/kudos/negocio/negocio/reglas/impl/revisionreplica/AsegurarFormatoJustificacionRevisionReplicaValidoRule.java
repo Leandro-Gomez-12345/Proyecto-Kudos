@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.revisionreplica;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.RevisionReplicaEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.FormatosAtributos;
@@ -24,7 +23,9 @@ public final class AsegurarFormatoJustificacionRevisionReplicaValidoRule impleme
 	}
 
 	@Override
-	public void ejecutar(RevisionReplicaEntidad revision, DAOFactory daoFactory) {
+	public void ejecutar(RevisionReplicaEntidad... datos) {
+		var revision = datos[0];
+
 		ValidadorAtributos.asegurarTexto(revision.getJustificacion(), LONGITUD_MINIMA_JUSTIFICACION,
 				LONGITUD_MAXIMA_JUSTIFICACION, CatalogoMensajes.Reglas.REVISION_JUSTIFICACION_NO_VALIDA);
 		ValidadorAtributos.asegurarFormato(revision.getJustificacion(), FormatosAtributos.TEXTO_CON_PUNTUACION,

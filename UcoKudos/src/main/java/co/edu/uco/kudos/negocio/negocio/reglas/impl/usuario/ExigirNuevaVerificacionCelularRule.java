@@ -6,20 +6,23 @@ import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.EstadosCuenta;
 import co.edu.uco.kudos.transversal.utilitarios.UtilBooleano;
 
-public final class ExigirNuevaVerificacionCelularRule implements Rule<UsuarioEntidad> {
+public final class ExigirNuevaVerificacionCelularRule implements Rule<Object> {
 
-	private static final Rule<UsuarioEntidad> INSTANCIA = new ExigirNuevaVerificacionCelularRule();
+	private static final Rule<Object> INSTANCIA = new ExigirNuevaVerificacionCelularRule();
 
 	private ExigirNuevaVerificacionCelularRule() {
 
 	}
 
-	public static Rule<UsuarioEntidad> obtenerInstancia() {
+	public static Rule<Object> obtenerInstancia() {
 		return INSTANCIA;
 	}
 
 	@Override
-	public void ejecutar(UsuarioEntidad usuario, DAOFactory daoFactory) {
+	public void ejecutar(Object... datos) {
+		var usuario = (UsuarioEntidad) datos[0];
+		var daoFactory = (DAOFactory) datos[1];
+
 		usuario.setCelularVerificado(UtilBooleano.NO);
 		EstadosCuenta.devolverAAprobadaSiEstabaActiva(daoFactory, usuario);
 	}

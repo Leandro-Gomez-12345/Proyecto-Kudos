@@ -1,6 +1,5 @@
 package co.edu.uco.kudos.negocio.negocio.reglas.impl.revisionkudo;
 
-import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.entidad.RevisionKudoEntidad;
 import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ValidadorAtributos;
@@ -19,9 +18,11 @@ public final class AsegurarFormatoVetoDirectoKudoValidoRule implements Rule<Revi
 	}
 
 	@Override
-	public void ejecutar(RevisionKudoEntidad revision, DAOFactory daoFactory) {
+	public void ejecutar(RevisionKudoEntidad... datos) {
+		var revision = datos[0];
+
 		ValidadorAtributos.asegurarReferencia(revision.getKudo().getId(),
 				CatalogoMensajes.Reglas.KUDO_VETO_OBLIGATORIO);
-		AsegurarFormatoJustificacionRevisionKudoValidoRule.obtenerInstancia().ejecutar(revision, daoFactory);
+		AsegurarFormatoJustificacionRevisionKudoValidoRule.obtenerInstancia().ejecutar(revision);
 	}
 }

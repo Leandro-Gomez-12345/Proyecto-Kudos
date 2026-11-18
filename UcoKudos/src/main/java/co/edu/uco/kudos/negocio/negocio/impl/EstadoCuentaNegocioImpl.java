@@ -19,8 +19,7 @@ public final class EstadoCuentaNegocioImpl implements EstadoCuentaNegocio {
 
 	@Override
 	public List<EstadoCuentaDominio> consultarEstadosCuenta() {
-		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(),
-				daoFactory);
+		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		var registros = daoFactory.obtenerEstadoCuentaDAO().consultarTodos();
 		return EstadoCuentaEntidadAssembler.obtenerInstancia().convertirADominio(registros);
 	}
