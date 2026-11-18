@@ -48,10 +48,12 @@ import co.edu.uco.kudos.dao.datos.entidad.mysql.VinculacionAcademicaMySqlDAO;
 import co.edu.uco.kudos.dao.factoria.DAOFactory;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.excepciones.UcoKudosDatosExcepcion;
+import co.edu.uco.kudos.transversal.logger.UcoKudosLogger;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
 
 public final class MySqlDAOFactory extends DAOFactory {
 
+	private static final UcoKudosLogger LOGGER = UcoKudosLogger.obtener(MySqlDAOFactory.class);
 	private static final String VARIABLE_ENTORNO_URL = "UCOKUDOS_DB_URL";
 	private static final String VARIABLE_ENTORNO_USUARIO = "UCOKUDOS_DB_USUARIO";
 	private static final String VARIABLE_ENTORNO_CLAVE = "UCOKUDOS_DB_CLAVE";
@@ -64,6 +66,7 @@ public final class MySqlDAOFactory extends DAOFactory {
 
 		try {
 			setConexion(DriverManager.getConnection(url, usuario, clave));
+			LOGGER.debug("Conexión abierta");
 		} catch (SQLException excepcion) {
 			var mensajeUsuario = CatalogoMensajes.Datos.USUARIO_ERROR_ABRIENDO_CONEXION;
 			throw UcoKudosDatosExcepcion.crear(mensajeUsuario, excepcion.getMessage(), excepcion);

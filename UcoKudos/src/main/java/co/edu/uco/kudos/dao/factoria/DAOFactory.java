@@ -27,10 +27,13 @@ import co.edu.uco.kudos.dao.factoria.enums.FactoriaEnum;
 import co.edu.uco.kudos.dao.factoria.impl.MySqlDAOFactory;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.excepciones.UcoKudosDatosExcepcion;
+import co.edu.uco.kudos.transversal.excepciones.UcoKudosExcepcion;
+import co.edu.uco.kudos.transversal.logger.UcoKudosLogger;
 import co.edu.uco.kudos.transversal.utilitarios.UtilSQL;
 
 public abstract class DAOFactory {
 
+	private static final UcoKudosLogger LOGGER = UcoKudosLogger.obtener(DAOFactory.class);
 	private static final FactoriaEnum FACTORIA = FactoriaEnum.MYSQL;
 
 	private Connection conexion;
@@ -62,18 +65,38 @@ public abstract class DAOFactory {
 
 	public void iniciarTransaccion() {
 		UtilSQL.iniciarTransaccion(conexion);
+		LOGGER.debug("Transacción iniciada");
 	}
 
 	public void confirmarTransaccion() {
 		UtilSQL.confirmarTransaccion(conexion);
+		LOGGER.debug("Transacción confirmada");
 	}
 
 	public void cancelarTransaccion() {
-		UtilSQL.cancelarTransaccion(conexion);
+		ejecutarRegistrandoFalla(() -> {
+			UtilSQL.cancelarTransaccion(conexion);
+			LOGGER.debug("Transacción cancelada");
+		});
 	}
 
 	public void cerrarConexion() {
-		UtilSQL.cerrarConexion(conexion);
+		ejecutarRegistrandoFalla(() -> {
+			var estabaAbierta = UtilSQL.conexionEstaAbierta(conexion);
+			UtilSQL.cerrarConexion(conexion);
+			if (estabaAbierta) {
+				LOGGER.debug("Conexión cerrada");
+			}
+		});
+	}
+
+	private static void ejecutarRegistrandoFalla(Runnable accion) {
+		try {
+			accion.run();
+		} catch (UcoKudosExcepcion excepcion) {
+			LOGGER.registrarExcepcion(excepcion);
+			throw excepcion;
+		}
 	}
 
 	public abstract RolDAO obtenerRolDAO();

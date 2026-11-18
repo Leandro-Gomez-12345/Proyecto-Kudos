@@ -12,12 +12,17 @@ import java.util.List;
 import java.util.UUID;
 
 import co.edu.uco.kudos.transversal.excepciones.UcoKudosDatosExcepcion;
+import co.edu.uco.kudos.transversal.logger.UcoKudosLogger;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFecha;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFechaHora;
 import co.edu.uco.kudos.transversal.utilitarios.UtilSQL;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
 public abstract class SqlDAO {
+
+	private static final UcoKudosLogger LOGGER = UcoKudosLogger.obtener(SqlDAO.class);
+	private static final long NANOSEGUNDOS_POR_MILISEGUNDO = 1_000_000L;
+	private static final long MILISEGUNDOS_SENTENCIA_LENTA = 500L;
 
 	private Connection conexion;
 
@@ -35,16 +40,21 @@ public abstract class SqlDAO {
 	}
 
 	protected void ejecutarActualizacion(String sql, String mensajeUsuario, Object... parametros) {
+		LOGGER.debug("{} [{} parámetros]", sql, parametros.length);
+		var inicio = System.nanoTime();
 		try (var sentencia = getConexion().prepareStatement(sql)) {
 			asignarParametros(sentencia, Arrays.asList(parametros));
 			sentencia.executeUpdate();
 		} catch (SQLException excepcion) {
 			throw UcoKudosDatosExcepcion.crear(mensajeUsuario, excepcion.getMessage(), excepcion);
 		}
+		registrarSentenciaLenta(sql, inicio);
 	}
 
 	protected <E> List<E> ejecutarConsulta(String sql, List<Object> parametros, MapeadorFila<E> mapeador,
 			String mensajeUsuario) {
+		LOGGER.debug("{} [{} parámetros]", sql, parametros.size());
+		var inicio = System.nanoTime();
 		var resultadosConsulta = new ArrayList<E>();
 		try (var sentencia = getConexion().prepareStatement(sql)) {
 			asignarParametros(sentencia, parametros);
@@ -56,6 +66,7 @@ public abstract class SqlDAO {
 		} catch (SQLException excepcion) {
 			throw UcoKudosDatosExcepcion.crear(mensajeUsuario, excepcion.getMessage(), excepcion);
 		}
+		registrarSentenciaLenta(sql, inicio);
 		return resultadosConsulta;
 	}
 
@@ -73,6 +84,13 @@ public abstract class SqlDAO {
 
 	protected static LocalDateTime escribirFechaHoraOpcional(LocalDateTime valor) {
 		return UtilFechaHora.esValorDefecto(valor) ? null : valor;
+	}
+
+	private static void registrarSentenciaLenta(String sql, long inicio) {
+		var milisegundos = (System.nanoTime() - inicio) / NANOSEGUNDOS_POR_MILISEGUNDO;
+		if (milisegundos >= MILISEGUNDOS_SENTENCIA_LENTA) {
+			LOGGER.advertencia("Sentencia lenta ({} ms): {}", milisegundos, sql);
+		}
 	}
 
 	private static void asignarParametros(PreparedStatement sentencia, List<Object> parametros)
