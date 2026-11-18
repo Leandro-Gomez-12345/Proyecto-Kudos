@@ -118,6 +118,244 @@ public final class CatalogoMensajes {
 		public static final String USUARIO_ERROR_ACTUALIZANDO_REPORTE_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de actualizar la información del reporte de la réplica.", CONTACTAR_ADMINISTRADOR);
 	}
 
+	public static final class RolFachada {
+
+		private RolFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_ROLES = UtilTexto.concatenar("Se presentó un problema tratando de consultar los roles institucionales.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class EstadoCuentaFachada {
+
+		private EstadoCuentaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_ESTADOS_CUENTA = UtilTexto.concatenar("Se presentó un problema tratando de consultar los estados de cuenta.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class EstadoContenidoFachada {
+
+		private EstadoContenidoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_ESTADOS_CONTENIDO = UtilTexto.concatenar("Se presentó un problema tratando de consultar los estados del contenido.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class EstadoRevisionFachada {
+
+		private EstadoRevisionFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_ESTADOS_REVISION = UtilTexto.concatenar("Se presentó un problema tratando de consultar los estados de revisión.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class MotivoFachada {
+
+		private MotivoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_MOTIVOS = UtilTexto.concatenar("Se presentó un problema tratando de consultar los motivos de reporte.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class CategoriaFachada {
+
+		private CategoriaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REGISTRANDO_CATEGORIA = UtilTexto.concatenar("Se presentó un problema tratando de registrar la categoría.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_CATEGORIAS = UtilTexto.concatenar("Se presentó un problema tratando de consultar las categorías.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_NOMBRE_CATEGORIA = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el nombre de la categoría.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_DESCRIPCION_CATEGORIA = UtilTexto.concatenar("Se presentó un problema tratando de cambiar la descripción de la categoría.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_ACTIVANDO_CATEGORIA = UtilTexto.concatenar("Se presentó un problema tratando de activar la categoría.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_DESACTIVANDO_CATEGORIA = UtilTexto.concatenar("Se presentó un problema tratando de desactivar la categoría.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class FacultadFachada {
+
+		private FacultadFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REGISTRANDO_FACULTAD = UtilTexto.concatenar("Se presentó un problema tratando de registrar la facultad.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_FACULTADES = UtilTexto.concatenar("Se presentó un problema tratando de consultar las facultades.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_NOMBRE_FACULTAD = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el nombre de la facultad.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class UsuarioFachada {
+
+		private UsuarioFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REGISTRANDO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de registrar al usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_PRESENTANDO_NUEVAMENTE_REGISTRO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de presentar nuevamente el registro del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_REGISTRANDO_RECTOR = UtilTexto.concatenar("Se presentó un problema tratando de registrar al Rector.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_REGISTRANDO_ADMINISTRADOR = UtilTexto.concatenar("Se presentó un problema tratando de registrar al Administrador.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_VERIFICANDO_CORREO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de verificar el correo institucional del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_VERIFICANDO_CELULAR_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de verificar el celular del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_INFORMACION_PERSONAL_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de consultar la información personal del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_USUARIOS = UtilTexto.concatenar("Se presentó un problema tratando de consultar los usuarios.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_NOMBRE_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el nombre del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_CORREO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el correo institucional del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_CELULAR_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el celular del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_SUSPENDIENDO_CUENTA_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de suspender la cuenta del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_REACTIVANDO_CUENTA_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de reactivar la cuenta del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_DESACTIVANDO_CUENTA_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de desactivar la cuenta del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_ROL_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el rol del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_USUARIOS_PENDIENTES_APROBACION = UtilTexto.concatenar("Se presentó un problema tratando de consultar los usuarios pendientes de aprobación.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_APROBANDO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de aprobar el registro del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_RECHAZANDO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de rechazar el registro del usuario.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class ProgramaAcademicoFachada {
+
+		private ProgramaAcademicoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REGISTRANDO_PROGRAMA_ACADEMICO = UtilTexto.concatenar("Se presentó un problema tratando de registrar el programa académico.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_PROGRAMAS_ACADEMICOS = UtilTexto.concatenar("Se presentó un problema tratando de consultar los programas académicos.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_NOMBRE_PROGRAMA_ACADEMICO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el nombre del programa académico.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class AuditoriaFachada {
+
+		private AuditoriaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_AUDITORIAS = UtilTexto.concatenar("Se presentó un problema tratando de consultar los registros de auditoría.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_AUDITORIAS_PROPIAS = UtilTexto.concatenar("Se presentó un problema tratando de consultar el historial de actividad propio.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class CoordinacionFacultadFachada {
+
+		private CoordinacionFacultadFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_ASIGNANDO_COORDINADOR_FACULTAD = UtilTexto.concatenar("Se presentó un problema tratando de asignar al coordinador de la facultad.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_COORDINACIONES_FACULTAD = UtilTexto.concatenar("Se presentó un problema tratando de consultar las coordinaciones de la facultad.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class CoordinacionProgramaFachada {
+
+		private CoordinacionProgramaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_ASIGNANDO_COORDINADOR_PROGRAMA = UtilTexto.concatenar("Se presentó un problema tratando de asignar al coordinador del programa académico.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_COORDINACIONES_PROGRAMA = UtilTexto.concatenar("Se presentó un problema tratando de consultar las coordinaciones del programa académico.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class VinculacionAcademicaFachada {
+
+		private VinculacionAcademicaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_VINCULANDO_PERSONA_A_PROGRAMA = UtilTexto.concatenar("Se presentó un problema tratando de vincular a la persona con el programa académico.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_DESVINCULANDO_PERSONA_DE_PROGRAMA = UtilTexto.concatenar("Se presentó un problema tratando de desvincular a la persona del programa académico.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_VINCULACIONES_ACADEMICAS = UtilTexto.concatenar("Se presentó un problema tratando de consultar las vinculaciones académicas.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class KudoFachada {
+
+		private KudoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CREANDO_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de crear el Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de consultar el Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_KUDOS = UtilTexto.concatenar("Se presentó un problema tratando de consultar los Kudos.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class ReplicaFachada {
+
+		private ReplicaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REPLICANDO_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de replicar el Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_RESPONDIENDO_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de responder la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_CONVERSACION_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de consultar la conversación del Kudo.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class CalificacionKudoFachada {
+
+		private CalificacionKudoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CALIFICANDO_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de calificar el Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_CALIFICACION_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar la calificación del Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_CALIFICACIONES_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de consultar las calificaciones del Kudo.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class RevisionKudoFachada {
+
+		private RevisionKudoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_INICIANDO_REVISION_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de iniciar la revisión del Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CERRANDO_REVISION_KUDO_CON_VETO = UtilTexto.concatenar("Se presentó un problema tratando de cerrar con veto la revisión del Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CERRANDO_REVISION_KUDO_CON_LIBERACION = UtilTexto.concatenar("Se presentó un problema tratando de cerrar con liberación la revisión del Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_VETANDO_KUDO_DIRECTAMENTE = UtilTexto.concatenar("Se presentó un problema tratando de vetar directamente el Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_REVISIONES_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de consultar las revisiones de los Kudos.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class CalificacionReplicaFachada {
+
+		private CalificacionReplicaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CALIFICANDO_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de calificar la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CAMBIANDO_CALIFICACION_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de cambiar la calificación de la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_CALIFICACIONES_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de consultar las calificaciones de la réplica.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class RevisionReplicaFachada {
+
+		private RevisionReplicaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_INICIANDO_REVISION_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de iniciar la revisión de la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CERRANDO_REVISION_REPLICA_CON_VETO = UtilTexto.concatenar("Se presentó un problema tratando de cerrar con veto la revisión de la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CERRANDO_REVISION_REPLICA_CON_LIBERACION = UtilTexto.concatenar("Se presentó un problema tratando de cerrar con liberación la revisión de la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_VETANDO_REPLICA_DIRECTAMENTE = UtilTexto.concatenar("Se presentó un problema tratando de vetar directamente la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_REVISIONES_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de consultar las revisiones de las réplicas.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class ReporteKudoFachada {
+
+		private ReporteKudoFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REPORTANDO_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de reportar el Kudo.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_REPORTES_KUDO = UtilTexto.concatenar("Se presentó un problema tratando de consultar los reportes de los Kudos.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class ReporteReplicaFachada {
+
+		private ReporteReplicaFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_REPORTANDO_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de reportar la réplica.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONSULTANDO_REPORTES_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de consultar los reportes de las réplicas.", CONTACTAR_ADMINISTRADOR);
+	}
+
 	public static final class Reglas {
 
 		private Reglas() {
