@@ -176,11 +176,14 @@ public final class MySqlDAOFactory extends DAOFactory {
 	}
 
 	private static String obtenerVariableEntornoObligatoria(String nombreVariable) {
-		if (UtilTexto.esVacia(nombreVariable)) {
-			var mensajeUsuario = CatalogoMensajes.Datos.USUARIO_ERROR_VARIABLE_ENTORNO_NO_DEFINIDA;
+		var valor = UtilTexto.quitarEspaciosEnBlanco(System.getenv(nombreVariable));
+
+		if (UtilTexto.esVacia(valor)) {
+			var mensajeUsuario = CatalogoMensajes.Datos.USUARIO_ERROR_VARIABLE_ENTORNO_NO_DEFINIDA
+					.formatted(nombreVariable);
 			throw UcoKudosDatosExcepcion.crear(mensajeUsuario);
 		}
 
-		return nombreVariable;
+		return valor;
 	}
 }
