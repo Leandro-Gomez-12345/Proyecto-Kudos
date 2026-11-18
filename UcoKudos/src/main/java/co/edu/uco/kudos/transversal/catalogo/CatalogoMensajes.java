@@ -356,6 +356,20 @@ public final class CatalogoMensajes {
 		public static final String USUARIO_ERROR_CONSULTANDO_REPORTES_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de consultar los reportes de las réplicas.", CONTACTAR_ADMINISTRADOR);
 	}
 
+	public static final class AbstractRestController {
+
+		private AbstractRestController() {
+
+		}
+
+		public static final String RECURSO_NO_EXISTE = "El recurso %s solicitado con el método %s no existe.";
+		public static final String METODO_NO_PERMITIDO = "El método %s no está permitido para el recurso solicitado.";
+		public static final String CONTENIDO_NO_SOPORTADO = "El formato del contenido enviado no es compatible. Envíe la información en formato JSON.";
+		public static final String CUERPO_NO_VALIDO = "La información enviada no tiene un formato válido.";
+		public static final String PARAMETRO_NO_VALIDO = "El valor indicado para %s no es válido.";
+		public static final String ERROR_NO_CONTROLADO = UtilTexto.concatenar("Se presentó un error inesperado tratando de llevar a cabo la operación deseada.", " Por favor intente de nuevo y si el problema persiste contacte al administrador de la aplicación y entréguele el código de la respuesta (correlationId).");
+	}
+
 	public static final class Reglas {
 
 		private Reglas() {
