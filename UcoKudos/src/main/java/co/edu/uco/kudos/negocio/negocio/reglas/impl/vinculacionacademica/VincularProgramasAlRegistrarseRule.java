@@ -11,6 +11,7 @@ import co.edu.uco.kudos.negocio.negocio.reglas.Rule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorCatalogos;
 import co.edu.uco.kudos.transversal.catalogo.NombresCatalogo;
 import co.edu.uco.kudos.transversal.utilitarios.UtilFecha;
+import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
 
 public final class VincularProgramasAlRegistrarseRule implements Rule<Object> {
 
@@ -50,7 +51,29 @@ public final class VincularProgramasAlRegistrarseRule implements Rule<Object> {
 		vinculacion.setProgramaAcademico(programa);
 		vinculacion.setFechaVinculacion(fechaVinculacion);
 		AsegurarPersonaSinVinculoVigenteEnProgramaRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
-		AsegurarIdVinculacionAcademicaUnicoRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
-		daoFactory.obtenerVinculacionAcademicaDAO().crear(vinculacion);
+
+		var vinculacionCerrada = consultarCerradaConLaMismaFecha(vinculacion, daoFactory);
+		if (UtilUUID.esValorDefecto(vinculacionCerrada.getId())) {
+			AsegurarIdVinculacionAcademicaUnicoRule.obtenerInstancia().ejecutar(vinculacion, daoFactory);
+			daoFactory.obtenerVinculacionAcademicaDAO().crear(vinculacion);
+			return;
+		}
+
+		reabrir(vinculacionCerrada, daoFactory);
+	}
+
+	private static VinculacionAcademicaEntidad consultarCerradaConLaMismaFecha(VinculacionAcademicaEntidad vinculacion,
+			DAOFactory daoFactory) {
+		var filtro = new VinculacionAcademicaEntidad();
+		filtro.getUsuario().setId(vinculacion.getUsuario().getId());
+		filtro.getProgramaAcademico().setId(vinculacion.getProgramaAcademico().getId());
+		filtro.setFechaVinculacion(vinculacion.getFechaVinculacion());
+		var coincidencias = daoFactory.obtenerVinculacionAcademicaDAO().consultarPorFiltro(filtro);
+		return coincidencias.isEmpty() ? new VinculacionAcademicaEntidad() : coincidencias.get(0);
+	}
+
+	private static void reabrir(VinculacionAcademicaEntidad vinculacionCerrada, DAOFactory daoFactory) {
+		vinculacionCerrada.setFechaDesvinculacion(UtilFecha.FECHA_DEFECTO);
+		daoFactory.obtenerVinculacionAcademicaDAO().actualizar(vinculacionCerrada.getId(), vinculacionCerrada);
 	}
 }

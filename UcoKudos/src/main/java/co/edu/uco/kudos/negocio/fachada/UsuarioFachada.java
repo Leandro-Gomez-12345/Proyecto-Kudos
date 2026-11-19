@@ -16,9 +16,9 @@ public interface UsuarioFachada {
 
 	UsuarioDTO registrarAdministrador(UsuarioDTO datos);
 
-	void verificarCorreoUsuario(UUID id, String codigo);
+	void confirmarCorreoUsuario(UUID id);
 
-	void verificarCelularUsuario(UUID id, String codigo);
+	void confirmarCelularUsuario(UUID id);
 
 	UsuarioDTO consultarInformacionPersonalUsuario(UUID id);
 

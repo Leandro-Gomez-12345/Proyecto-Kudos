@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.kudos.controlador.AbstractRestController;
-import co.edu.uco.kudos.controlador.peticion.CodigoVerificacionPeticion;
 import co.edu.uco.kudos.controlador.peticion.JustificacionPeticion;
 import co.edu.uco.kudos.controlador.peticion.RegistroUsuarioPeticion;
 import co.edu.uco.kudos.controlador.respuesta.RespuestaOk;
@@ -53,18 +52,16 @@ public class UsuarioControlador extends AbstractRestController {
 		return responderCreado(CatalogoMensajes.UsuarioControlador.ADMINISTRADOR_REGISTRADO, administrador);
 	}
 
-	@PatchMapping("/{id}/correo/verificacion")
-	public ResponseEntity<RespuestaOk<Void>> verificarCorreoUsuario(@PathVariable("id") UUID id,
-			@RequestBody CodigoVerificacionPeticion peticion) {
-		usuarioFachada.verificarCorreoUsuario(id, peticion.getCodigo());
-		return responderOk(CatalogoMensajes.UsuarioControlador.CORREO_VERIFICADO);
+	@PatchMapping("/{id}/correo/confirmacion")
+	public ResponseEntity<RespuestaOk<Void>> confirmarCorreoUsuario(@PathVariable("id") UUID id) {
+		usuarioFachada.confirmarCorreoUsuario(id);
+		return responderOk(CatalogoMensajes.UsuarioControlador.CORREO_CONFIRMADO);
 	}
 
-	@PatchMapping("/{id}/celular/verificacion")
-	public ResponseEntity<RespuestaOk<Void>> verificarCelularUsuario(@PathVariable("id") UUID id,
-			@RequestBody CodigoVerificacionPeticion peticion) {
-		usuarioFachada.verificarCelularUsuario(id, peticion.getCodigo());
-		return responderOk(CatalogoMensajes.UsuarioControlador.CELULAR_VERIFICADO);
+	@PatchMapping("/{id}/celular/confirmacion")
+	public ResponseEntity<RespuestaOk<Void>> confirmarCelularUsuario(@PathVariable("id") UUID id) {
+		usuarioFachada.confirmarCelularUsuario(id);
+		return responderOk(CatalogoMensajes.UsuarioControlador.CELULAR_CONFIRMADO);
 	}
 
 	@GetMapping("/{id}")

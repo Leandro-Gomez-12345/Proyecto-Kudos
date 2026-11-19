@@ -25,11 +25,10 @@ import co.edu.uco.kudos.negocio.negocio.reglas.impl.programaacademico.AsegurarPr
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.rol.AsegurarRolExisteRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.ActivarCuentaCuandoCumplaCondicionesRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarAprobadorCorrespondeAlRolRule;
+import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarAutoridadConfirmaContactoRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarAutoridadGestionaPersonaRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarCelularSinVerificarRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarCelularUsuarioNoExistaRule;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarCodigoCelularValidoRule;
-import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarCodigoCorreoValidoRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarConsultaPendientesDeSuAmbitoRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarCorreoSinVerificarRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.usuario.AsegurarCorreoUsuarioNoExistaRule;
@@ -143,33 +142,37 @@ public final class UsuarioNegocioImpl implements UsuarioNegocio {
 	}
 
 	@Override
-	public void verificarCorreoUsuario(UUID id, String codigo) {
+	public void confirmarCorreoUsuario(UUID id) {
+		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
+		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(id);
+		AsegurarAutoridadConfirmaContactoRule.obtenerInstancia().ejecutar(id, daoFactory);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		AsegurarCorreoSinVerificarRule.obtenerInstancia().ejecutar(usuario);
-		AsegurarCodigoCorreoValidoRule.obtenerInstancia().ejecutar(usuario, codigo);
 		usuario.setCorreoVerificado(UtilBooleano.SI);
 		ActivarCuentaCuandoCumplaCondicionesRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
 		daoFactory.obtenerUsuarioDAO().actualizar(id, usuario);
-		Auditor.registrarComo(daoFactory, id, EventoAuditable.VERIFICAR_CORREO_USUARIO, id,
-				Auditor.detalleCambio("Correo sin verificar", "Correo verificado"));
+		Auditor.registrar(daoFactory, EventoAuditable.CONFIRMAR_CORREO_USUARIO, id,
+				Auditor.detalleCambio("Correo sin confirmar", "Correo confirmado"));
 	}
 
 	@Override
-	public void verificarCelularUsuario(UUID id, String codigo) {
+	public void confirmarCelularUsuario(UUID id) {
+		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
 		AsegurarUsuarioExisteRule.obtenerInstancia().ejecutar(id, daoFactory);
+		AsegurarNoActuarSobreCuentaPropiaRule.obtenerInstancia().ejecutar(id);
+		AsegurarAutoridadConfirmaContactoRule.obtenerInstancia().ejecutar(id, daoFactory);
 
 		var usuario = daoFactory.obtenerUsuarioDAO().consultarPorId(id);
 		AsegurarCelularSinVerificarRule.obtenerInstancia().ejecutar(usuario);
-		AsegurarCodigoCelularValidoRule.obtenerInstancia().ejecutar(usuario, codigo);
 		usuario.setCelularVerificado(UtilBooleano.SI);
 		ActivarCuentaCuandoCumplaCondicionesRule.obtenerInstancia().ejecutar(usuario, daoFactory);
 
 		daoFactory.obtenerUsuarioDAO().actualizar(id, usuario);
-		Auditor.registrarComo(daoFactory, id, EventoAuditable.VERIFICAR_CELULAR_USUARIO, id,
-				Auditor.detalleCambio("Celular sin verificar", "Celular verificado"));
+		Auditor.registrar(daoFactory, EventoAuditable.CONFIRMAR_CELULAR_USUARIO, id,
+				Auditor.detalleCambio("Celular sin confirmar", "Celular confirmado"));
 	}
 
 	@Override

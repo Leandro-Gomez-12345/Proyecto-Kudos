@@ -198,8 +198,8 @@ public final class CatalogoMensajes {
 		public static final String USUARIO_ERROR_PRESENTANDO_NUEVAMENTE_REGISTRO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de presentar nuevamente el registro del usuario.", CONTACTAR_ADMINISTRADOR);
 		public static final String USUARIO_ERROR_REGISTRANDO_RECTOR = UtilTexto.concatenar("Se presentó un problema tratando de registrar al Rector.", CONTACTAR_ADMINISTRADOR);
 		public static final String USUARIO_ERROR_REGISTRANDO_ADMINISTRADOR = UtilTexto.concatenar("Se presentó un problema tratando de registrar al Administrador.", CONTACTAR_ADMINISTRADOR);
-		public static final String USUARIO_ERROR_VERIFICANDO_CORREO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de verificar el correo institucional del usuario.", CONTACTAR_ADMINISTRADOR);
-		public static final String USUARIO_ERROR_VERIFICANDO_CELULAR_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de verificar el celular del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONFIRMANDO_CORREO_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de confirmar el correo institucional del usuario.", CONTACTAR_ADMINISTRADOR);
+		public static final String USUARIO_ERROR_CONFIRMANDO_CELULAR_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de confirmar el celular del usuario.", CONTACTAR_ADMINISTRADOR);
 		public static final String USUARIO_ERROR_CONSULTANDO_INFORMACION_PERSONAL_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de consultar la información personal del usuario.", CONTACTAR_ADMINISTRADOR);
 		public static final String USUARIO_ERROR_CONSULTANDO_USUARIOS = UtilTexto.concatenar("Se presentó un problema tratando de consultar los usuarios.", CONTACTAR_ADMINISTRADOR);
 		public static final String USUARIO_ERROR_CAMBIANDO_NOMBRE_USUARIO = UtilTexto.concatenar("Se presentó un problema tratando de cambiar el nombre del usuario.", CONTACTAR_ADMINISTRADOR);
@@ -380,8 +380,8 @@ public final class CatalogoMensajes {
 		public static final String REGISTRO_PRESENTADO_NUEVAMENTE = "Se ha presentado nuevamente el registro correctamente.";
 		public static final String RECTOR_REGISTRADO = "Se ha registrado el rector correctamente.";
 		public static final String ADMINISTRADOR_REGISTRADO = "Se ha registrado el administrador correctamente.";
-		public static final String CORREO_VERIFICADO = "Se ha verificado el correo correctamente.";
-		public static final String CELULAR_VERIFICADO = "Se ha verificado el celular correctamente.";
+		public static final String CORREO_CONFIRMADO = "Se ha confirmado el correo correctamente.";
+		public static final String CELULAR_CONFIRMADO = "Se ha confirmado el celular correctamente.";
 		public static final String NOMBRE_CAMBIADO = "Se ha cambiado el nombre correctamente.";
 		public static final String CORREO_CAMBIADO = "Se ha cambiado el correo correctamente.";
 		public static final String CELULAR_CAMBIADO = "Se ha cambiado el celular correctamente.";
@@ -571,6 +571,8 @@ public final class CatalogoMensajes {
 				"No puede desactivar la única categoría activa; active o cree otra primero";
 		public static final String CATEGORIA_YA_ACTIVA = "La categoría ya está activa";
 		public static final String CELULAR_YA_VERIFICADO = "El celular ya estaba verificado";
+		public static final String CONFIRMADOR_NO_CORRESPONDE_A_LA_PERSONA =
+				"A usted no le corresponde confirmar los datos de contacto de esta persona";
 		public static final String COORDINACION_FECHA_INICIO_NO_VALIDA = UtilTexto.concatenar(
 				"La fecha de inicio no puede ser anterior al 01/01/1982 ni posterior a la fecha ",
 				"actual");

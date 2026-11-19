@@ -132,53 +132,53 @@ public final class UsuarioFachadaImpl implements UsuarioFachada {
 	}
 
 	@Override
-	public void verificarCorreoUsuario(UUID id, String codigo) {
+	public void confirmarCorreoUsuario(UUID id) {
 		var daoFactory = DAOFactory.obtenerFactoria();
 		try {
 			daoFactory.iniciarTransaccion();
-			verificarCorreoUsuarioConfirmandoTransaccion(daoFactory, id, codigo);
+			confirmarCorreoUsuarioConfirmandoTransaccion(daoFactory, id);
 		} finally {
 			daoFactory.cerrarConexion();
 		}
 	}
 
-	private void verificarCorreoUsuarioConfirmandoTransaccion(DAOFactory daoFactory, UUID id, String codigo) {
+	private void confirmarCorreoUsuarioConfirmandoTransaccion(DAOFactory daoFactory, UUID id) {
 		try {
 			var usuarioNegocio = new UsuarioNegocioImpl(daoFactory);
-			usuarioNegocio.verificarCorreoUsuario(id, codigo);
+			usuarioNegocio.confirmarCorreoUsuario(id);
 			daoFactory.confirmarTransaccion();
 		} catch (UcoKudosExcepcion excepcion) {
 			daoFactory.cancelarTransaccion();
 			throw excepcion;
 		} catch (Exception excepcion) {
 			daoFactory.cancelarTransaccion();
-			var mensajeUsuario = CatalogoMensajes.UsuarioFachada.USUARIO_ERROR_VERIFICANDO_CORREO_USUARIO;
+			var mensajeUsuario = CatalogoMensajes.UsuarioFachada.USUARIO_ERROR_CONFIRMANDO_CORREO_USUARIO;
 			throw UcoKudosFachadaExcepcion.crear(mensajeUsuario, excepcion.getMessage(), excepcion);
 		}
 	}
 
 	@Override
-	public void verificarCelularUsuario(UUID id, String codigo) {
+	public void confirmarCelularUsuario(UUID id) {
 		var daoFactory = DAOFactory.obtenerFactoria();
 		try {
 			daoFactory.iniciarTransaccion();
-			verificarCelularUsuarioConfirmandoTransaccion(daoFactory, id, codigo);
+			confirmarCelularUsuarioConfirmandoTransaccion(daoFactory, id);
 		} finally {
 			daoFactory.cerrarConexion();
 		}
 	}
 
-	private void verificarCelularUsuarioConfirmandoTransaccion(DAOFactory daoFactory, UUID id, String codigo) {
+	private void confirmarCelularUsuarioConfirmandoTransaccion(DAOFactory daoFactory, UUID id) {
 		try {
 			var usuarioNegocio = new UsuarioNegocioImpl(daoFactory);
-			usuarioNegocio.verificarCelularUsuario(id, codigo);
+			usuarioNegocio.confirmarCelularUsuario(id);
 			daoFactory.confirmarTransaccion();
 		} catch (UcoKudosExcepcion excepcion) {
 			daoFactory.cancelarTransaccion();
 			throw excepcion;
 		} catch (Exception excepcion) {
 			daoFactory.cancelarTransaccion();
-			var mensajeUsuario = CatalogoMensajes.UsuarioFachada.USUARIO_ERROR_VERIFICANDO_CELULAR_USUARIO;
+			var mensajeUsuario = CatalogoMensajes.UsuarioFachada.USUARIO_ERROR_CONFIRMANDO_CELULAR_USUARIO;
 			throw UcoKudosFachadaExcepcion.crear(mensajeUsuario, excepcion.getMessage(), excepcion);
 		}
 	}

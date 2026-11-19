@@ -16,9 +16,9 @@ public interface UsuarioNegocio {
 
 	UsuarioDominio registrarAdministrador(UsuarioDominio datos);
 
-	void verificarCorreoUsuario(UUID id, String codigo);
+	void confirmarCorreoUsuario(UUID id);
 
-	void verificarCelularUsuario(UUID id, String codigo);
+	void confirmarCelularUsuario(UUID id);
 
 	void activarCuentaUsuario(UUID id);
 
