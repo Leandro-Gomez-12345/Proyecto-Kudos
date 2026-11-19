@@ -5,6 +5,7 @@ import co.edu.uco.kudos.dominio.UsuarioDominio;
 import co.edu.uco.kudos.entidad.UsuarioEntidad;
 import co.edu.uco.kudos.negocio.negocio.AutenticacionNegocio;
 import co.edu.uco.kudos.negocio.negocio.assembler.impl.UsuarioEntidadAssembler;
+import co.edu.uco.kudos.negocio.negocio.reglas.impl.autenticacion.AsegurarCorreoDeIngresoInstitucionalRule;
 import co.edu.uco.kudos.negocio.negocio.reglas.impl.comun.ConsultorCatalogos;
 import co.edu.uco.kudos.transversal.utilitarios.UtilCorreoInstitucional;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
@@ -15,6 +16,12 @@ public final class AutenticacionNegocioImpl implements AutenticacionNegocio {
 
 	public AutenticacionNegocioImpl(DAOFactory daoFactory) {
 		this.daoFactory = daoFactory;
+	}
+
+	@Override
+	public UsuarioDominio iniciarSesion(String correo) {
+		AsegurarCorreoDeIngresoInstitucionalRule.obtenerInstancia().ejecutar(correo);
+		return consultarUsuarioPorCorreo(correo);
 	}
 
 	@Override

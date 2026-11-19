@@ -363,7 +363,17 @@ public final class CatalogoMensajes {
 
 		}
 
+		public static final String USUARIO_ERROR_INICIANDO_SESION = UtilTexto.concatenar("Se presentó un problema tratando de iniciar la sesión con el correo indicado.", CONTACTAR_ADMINISTRADOR);
 		public static final String USUARIO_ERROR_CONSULTANDO_USUARIO_POR_CORREO = UtilTexto.concatenar("Se presentó un problema tratando de consultar la cuenta asociada al correo con el que inició sesión.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class AutenticacionControlador {
+
+		private AutenticacionControlador() {
+
+		}
+
+		public static final String SESION_CERRADA = "La sesión se cerró correctamente.";
 	}
 
 	public static final class Seguridad {
@@ -372,7 +382,8 @@ public final class CatalogoMensajes {
 
 		}
 
-		public static final String CORREO_NO_INSTITUCIONAL = UtilTexto.concatenar("Solo pueden ingresar personas con un correo institucional verificado que termine en ", UtilCorreoInstitucional.SUFIJO, ".");	}
+		public static final String SESION_NO_INICIADA = "Debe iniciar sesión para realizar esta acción.";
+	}
 
 	public static final class AbstractRestController {
 

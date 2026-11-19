@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activar cuenta | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<main class="principal" id="contenido" style="margin:0 auto;max-width:720px">
+  <div id="marca" style="margin-bottom:28px"></div>
+  <div id="vista" aria-live="polite"></div>
+</main>
+
+<script type="module">
+import * as api from './js/api.js';
+import { CUENTA } from './js/catalogos.js';
+import { cerrarSesion } from './js/sesion.js';
+import { $, esc, insignia, MARCA } from './js/ui.js';
+
+$('#marca').innerHTML = MARCA.replace('href="kudos.html"', 'href="index.html"');
+$('#marca svg').style.fill = 'var(--oro)';
+$('#marca span').style.color = 'var(--tinta)';
+
+function paso({ hecho, titulo, texto }) {
+  return `<li class="paso ${hecho ? 'paso-hecho' : ''}"><div class="pila" style="gap:8px">
+    <div><h3>${titulo}</h3><p class="texto-2 chico" style="margin:4px 0 0">${texto}</p></div></div></li>`;
+}
+
+async function pintar() {
+  const u = await api.usuarioActual();
+  if (!u) return location.replace('index.html');
+  if ([CUENTA.RECHAZADA, CUENTA.SUSPENDIDA, CUENTA.DESACTIVADA].includes(u.estadoCuenta)) {
+    $('#vista').innerHTML = `<h1>Su cuenta está ${esc(u.estadoNombre.toLowerCase())}</h1>
+      <p class="bajada">No puede usar la plataforma con esta cuenta.</p><p><button class="boton" data-salir>Salir</button></p>`;
+    return;
+  }
+  const activa = u.estadoCuenta === CUENTA.ACTIVA;
+  const aprobada = [CUENTA.APROBADA, CUENTA.ACTIVA].includes(u.estadoCuenta);
+  $('#vista').innerHTML = `
+    <header class="cabecera">
+      <div>
+        <h1>${activa ? 'Su cuenta está activa' : `Hola, ${esc(u.nombre)}`}</h1>
+        <p class="bajada">${activa
+          ? 'Ya puede otorgar y recibir Kudos.'
+          : 'Su cuenta se activa cuando se cumplan los tres pasos. La autoridad que gestiona su cuenta los confirma en la plataforma.'}</p>
+      </div>
+      <div class="fila">${insignia(u.estadoNombre)}</div>
+    </header>
+    <ol class="pasos">
+      ${paso({
+        hecho: aprobada,
+        titulo: aprobada ? 'Registro aprobado' : 'Registro en espera de aprobación',
+        texto: aprobada ? 'La autoridad que corresponde a su rol aprobó su registro.' : `Lo decide la autoridad que corresponde al rol ${esc(u.rolNombre)}. No tiene que hacer nada en este paso.`,
+      })}
+      ${paso({
+        hecho: u.correoVerificado,
+        titulo: u.correoVerificado ? 'Correo confirmado' : 'Correo pendiente de confirmación',
+        texto: esc(u.correoInstitucional),
+      })}
+      ${paso({
+        hecho: u.celularVerificado,
+        titulo: u.celularVerificado ? 'Celular confirmado' : 'Celular pendiente de confirmación',
+        texto: esc(u.celular),
+      })}
+    </ol>
+    <div class="fila" style="margin-top:24px">
+      ${activa ? '<a class="boton boton-oro" href="kudos.html">Entrar a Kudos</a>' : ''}
+      <button class="boton boton-sutil" type="button" data-salir>Salir</button>
+    </div>`;
+}
+
+document.addEventListener('click', async (ev) => {
+  if (ev.target.closest('[data-salir]')) {
+    await cerrarSesion();
+    location.href = 'index.html';
+  }
+});
+
+pintar();
+</script>
+</body>
+</html>

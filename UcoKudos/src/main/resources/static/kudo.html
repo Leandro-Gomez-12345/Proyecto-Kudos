@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kudo | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { CONTENIDO, REVISION, MOTIVO, MODERADORES } from './js/catalogos.js';
+import { $, esc, fechaHora, insignia, opciones, dialogo, aviso, alEnviar, mostrarError, estrellasSelector, estrellasVista, vacio, montarPagina } from './js/ui.js';
+import { tarjetaKudo } from './js/kudo-vista.js';
+
+const yo = await montarPagina({ pagina: 'kudos', titulo: 'Kudo' });
+const modera = MODERADORES.includes(yo.rol);
+const id = new URLSearchParams(location.search).get('id');
+$('#acciones').innerHTML = '<a class="boton boton-sutil" href="kudos.html">Volver a los Kudos</a>';
+const motivos = await api.consultarMotivos();
+
+const admiteInteraccion = (estado) => estado !== CONTENIDO.VETADO;
+const reportable = (estado) => [CONTENIDO.VISIBLE, CONTENIDO.REPORTADO].includes(estado);
+
+let kudo;
+let replicas = [];
+let revisionesEnCurso = { kudo: null, replicas: {} };
+
+async function cargar() {
+  try {
+    kudo = await api.consultarKudo(id);
+  } catch (e) {
+    $('#vista').innerHTML = vacio(e.message, '<a class="boton" href="kudos.html">Volver a los Kudos</a>');
+    return false;
+  }
+  replicas = await api.consultarConversacionKudo({ kudo: id });
+  if (modera) {
+    const [rk, rr] = await Promise.all([
+      api.consultarRevisionesKudo({ kudo: id, estadoRevision: REVISION.EN_CURSO }),
+      api.consultarRevisionesReplica({ estadoRevision: REVISION.EN_CURSO }),
+    ]);
+    revisionesEnCurso = { kudo: rk[0] ?? null, replicas: Object.fromEntries(rr.map((r) => [r.replica, r])) };
+  }
+  return true;
+}
+
+function accionesModeracion(tipo, contenido, revision) {
+  if (!modera) return '';
+  const b = [];
+  if (contenido.estadoContenido === CONTENIDO.REPORTADO) b.push(`<button class="enlace" data-mod="iniciar" data-tipo="${tipo}" data-id="${contenido.id}">Iniciar revisión</button>`);
+  if (revision) {
+    b.push(`<button class="enlace enlace-peligro" data-mod="vetar" data-tipo="${tipo}" data-id="${revision.id}">Vetar (cerrar revisión)</button>`);
+    b.push(`<button class="enlace" data-mod="liberar" data-tipo="${tipo}" data-id="${revision.id}">Liberar (cerrar revisión)</button>`);
+  }
+  if (reportable(contenido.estadoContenido)) b.push(`<button class="enlace enlace-peligro" data-mod="directo" data-tipo="${tipo}" data-id="${contenido.id}">Vetar directamente</button>`);
+  return b.join('');
+}
+
+function arbol(padre = null) {
+  const hijos = replicas.filter((r) => r.replicaPadre === padre);
+  if (!hijos.length) return '';
+  return `<ul class="conversacion">${hijos.map((r) => {
+    const vetada = r.estadoContenido === CONTENIDO.VETADO;
+    if (r.oculta) {
+      return `<li><div class="replica replica-oculta">Esta réplica fue vetada y ya no está disponible.</div>${arbol(r.id)}</li>`;
+    }
+    const puedeInteractuar = admiteInteraccion(kudo.estadoContenido) && !vetada;
+    return `<li>
+      <article class="replica" aria-label="Réplica de ${esc(r.autorNombre)}">
+        <div class="replica-cabeza"><strong>${esc(r.autorNombre)}</strong><span>${esc(fechaHora(r.fechaCreacion))}</span>
+          ${r.estadoContenido !== CONTENIDO.VISIBLE ? insignia(r.estadoNombre) : ''}</div>
+        <p class="replica-texto">${esc(r.contenido)}</p>
+        <div class="replica-acciones">
+          <span>${estrellasVista(r.promedio, r.calificaciones)}</span>
+          ${puedeInteractuar ? `<span class="fila" style="gap:4px" data-calificar-replica="${r.id}" data-calificacion="${r.miCalificacion?.id ?? ''}">
+            ${estrellasSelector(`er-${r.id}`, r.miCalificacion?.estrellas ?? 0, 'Calificar esta réplica')}</span>` : ''}
+          ${puedeInteractuar ? `<button class="enlace" data-responder="${r.id}" aria-expanded="false">Responder</button>` : ''}
+          ${reportable(r.estadoContenido) ? `<button class="enlace" data-reportar="replica" data-id="${r.id}">Reportar</button>` : ''}
+          ${accionesModeracion('replica', r, revisionesEnCurso.replicas[r.id])}
+        </div>
+        <div data-zona-respuesta="${r.id}"></div>
+      </article>
+      ${arbol(r.id)}
+    </li>`;
+  }).join('')}</ul>`;
+}
+
+async function pintar() {
+  if (!(await cargar())) return;
+  const interactua = admiteInteraccion(kudo.estadoContenido);
+  const visibles = replicas.filter((r) => !r.oculta).length;
+  $('#vista').innerHTML = `
+    <div class="pila" style="gap:20px">
+      ${tarjetaKudo(kudo, { grande: true, enlace: false })}
+      <div class="fila" style="justify-content:space-between">
+        ${interactua ? `<div class="fila" data-calificar-kudo data-calificacion="${kudo.miCalificacion?.id ?? ''}">
+          <span class="chico texto-2">${kudo.miCalificacion ? 'Su calificación' : 'Califique este Kudo'}</span>
+          ${estrellasSelector('ek', kudo.miCalificacion?.estrellas ?? 0, 'Calificar este Kudo')}</div>` : '<p class="texto-2 chico">Este Kudo fue vetado y no admite réplicas ni calificaciones.</p>'}
+        <div class="fila">
+          ${kudo.calificaciones ? '<button class="enlace chico" data-ver-calificaciones>Ver valoraciones</button>' : ''}
+          ${reportable(kudo.estadoContenido) ? '<button class="boton boton-chico" data-reportar="kudo">Reportar</button>' : ''}
+        </div>
+      </div>
+      ${modera && accionesModeracion('kudo', kudo, revisionesEnCurso.kudo) ? `
+        <div class="panel"><div class="panel-cabeza" style="margin:0"><div><h2>Moderación</h2>
+          <p class="texto-2 chico" style="margin:4px 0 0">Estado del contenido: ${esc(kudo.estadoNombre)}.</p></div>
+          <div class="fila">${accionesModeracion('kudo', kudo, revisionesEnCurso.kudo)}</div></div></div>` : ''}
+      <section aria-labelledby="t-conv" class="pila">
+        <h2 id="t-conv">Conversación${visibles ? ` (${visibles})` : ''}</h2>
+        ${replicas.length ? arbol() : '<p class="texto-2">Nadie ha respondido todavía.</p>'}
+        ${interactua ? `<form id="form-replica" class="formulario panel" novalidate>
+          <div class="campo"><label for="contenido">Escriba una réplica</label>
+            <textarea id="contenido" name="contenido" placeholder="Felicite, agregue contexto o agradezca."></textarea></div>
+          <div class="acciones"><button class="boton boton-primario" type="submit">Publicar réplica</button></div>
+        </form>` : ''}
+      </section>
+    </div>`;
+  const form = $('#form-replica');
+  if (form) {
+    alEnviar(form, async (datos) => {
+      await api.replicarKudo({ kudo: id, contenido: datos.contenido });
+      aviso('Réplica publicada.');
+      pintar();
+    });
+  }
+}
+
+async function calificar(tipo, objetivoId, calificacionId, estrellas) {
+  try {
+    if (calificacionId) {
+      if (tipo === 'kudo') await api.cambiarCalificacionKudo(calificacionId, { estrellas });
+      else await api.cambiarCalificacionReplica(calificacionId, { estrellas });
+      aviso('Calificación actualizada.');
+    } else {
+      if (tipo === 'kudo') await api.calificarKudo({ kudo: objetivoId, estrellas });
+      else await api.calificarReplica({ replica: objetivoId, estrellas });
+      aviso('Calificación registrada.');
+    }
+  } catch (e) {
+    mostrarError(e);
+  }
+  pintar();
+}
+
+function campoJustificacion(etiqueta, max = 1000) {
+  return `<div class="campo"><label for="justificacion">${etiqueta}</label>
+    <textarea id="justificacion" name="justificacion" maxlength="${max}" placeholder="Entre 10 y ${max} caracteres."></textarea>
+    <p class="ayuda">Queda en el histórico de moderación.</p></div>`;
+}
+
+async function moderar(accion, tipo, objetivo) {
+  const esKudo = tipo === 'kudo';
+  const que = esKudo ? 'el Kudo' : 'la réplica';
+  const config = {
+    iniciar: null,
+    vetar: { titulo: `Vetar ${que}`, texto: 'Vetar contenido', peligro: true, fn: (j) => (esKudo ? api.cerrarRevisionKudoConVeto : api.cerrarRevisionReplicaConVeto)(objetivo, j), ok: 'Contenido vetado. Los reportes quedan aceptados.' },
+    liberar: { titulo: `Liberar ${que}`, texto: 'Liberar contenido', peligro: false, fn: (j) => (esKudo ? api.cerrarRevisionKudoConLiberacion : api.cerrarRevisionReplicaConLiberacion)(objetivo, j), ok: 'Contenido liberado. Los reportes quedan rechazados.' },
+    directo: { titulo: `Vetar ${que} directamente`, texto: 'Vetar contenido', peligro: true, fn: (j) => (esKudo ? api.vetarKudoDirectamente({ kudo: objetivo, justificacion: j }) : api.vetarReplicaDirectamente({ replica: objetivo, justificacion: j })), ok: 'Contenido vetado.' },
+  }[accion];
+  if (accion === 'iniciar') {
+    try {
+      await (esKudo ? api.iniciarRevisionKudo({ kudo: objetivo }) : api.iniciarRevisionReplica({ replica: objetivo }));
+      aviso('Revisión iniciada. El contenido queda en revisión.');
+    } catch (e) {
+      mostrarError(e);
+    }
+    return pintar();
+  }
+  const ok = await dialogo({
+    titulo: config.titulo, textoAceptar: config.texto, peligro: config.peligro,
+    cuerpo: campoJustificacion('Justificación de la decisión'),
+    alAceptar: (datos) => config.fn(datos.justificacion),
+  });
+  if (ok) {
+    aviso(config.ok);
+    if (esKudo && accion !== 'liberar') location.reload();
+    else pintar();
+  }
+}
+
+async function reportar(tipo, objetivo) {
+  const ok = await dialogo({
+    titulo: tipo === 'kudo' ? 'Reportar este Kudo' : 'Reportar esta réplica',
+    textoAceptar: 'Enviar reporte',
+    cuerpo: `
+      <p class="texto-2 chico" style="margin:0">El Rector o el Coordinador Académico revisará el contenido.</p>
+      <div class="campo"><label for="motivo">Motivo</label>
+        <select id="motivo" name="motivo">${opciones(motivos, { vacio: 'Elija el motivo' })}</select></div>
+      <div class="campo"><label for="descripcion">Descripción <span class="texto-2" id="desc-opcional">(opcional)</span></label>
+        <textarea id="descripcion" name="descripcion" maxlength="500" placeholder="Hasta 500 caracteres. Obligatoria si el motivo es Otro."></textarea></div>`,
+    alAceptar: (datos) => (tipo === 'kudo' ? api.reportarKudo({ ...datos, kudo: objetivo }) : api.reportarReplica({ ...datos, replica: objetivo })),
+  });
+  if (ok) {
+    aviso('Reporte enviado.');
+    pintar();
+  }
+}
+
+async function verCalificaciones() {
+  const lista = await api.consultarCalificacionesKudo({ kudo: id });
+  await dialogo({
+    titulo: 'Valoraciones del Kudo',
+    textoAceptar: 'Cerrar',
+    cuerpo: `<p>${estrellasVista(kudo.promedio, kudo.calificaciones)}</p>
+      <ul style="margin:0;padding-left:18px">${lista.map((c) => `<li>${esc(c.usuarioNombre)}: ${'★'.repeat(c.estrellas)}<span class="texto-2">${'★'.repeat(5 - c.estrellas)}</span> <span class="texto-2 chico">${esc(fechaHora(c.fechaCalificacion))}</span></li>`).join('')}</ul>`,
+  });
+}
+
+document.addEventListener('change', (ev) => {
+  if (ev.target.name === 'motivo') {
+    const op = $('#desc-opcional');
+    if (op) op.textContent = ev.target.value === MOTIVO.OTRO ? '(obligatoria)' : '(opcional)';
+  }
+  const ck = ev.target.closest('[data-calificar-kudo]');
+  if (ck && ev.target.type === 'radio') return calificar('kudo', id, ck.dataset.calificacion, Number(ev.target.value));
+  const cr = ev.target.closest('[data-calificar-replica]');
+  if (cr && ev.target.type === 'radio') return calificar('replica', cr.dataset.calificarReplica, cr.dataset.calificacion, Number(ev.target.value));
+});
+
+document.addEventListener('click', (ev) => {
+  const resp = ev.target.closest('[data-responder]');
+  if (resp) {
+    const zona = $(`[data-zona-respuesta="${resp.dataset.responder}"]`);
+    const abierto = resp.getAttribute('aria-expanded') === 'true';
+    resp.setAttribute('aria-expanded', String(!abierto));
+    if (abierto) {
+      zona.innerHTML = '';
+      return;
+    }
+    zona.innerHTML = `<form class="formulario responder-form" novalidate>
+      <div class="campo"><label class="sr" for="resp-${resp.dataset.responder}">Su respuesta</label>
+        <textarea id="resp-${resp.dataset.responder}" name="contenido" placeholder="Escriba su respuesta" style="min-height:80px"></textarea></div>
+      <div class="acciones"><button class="boton boton-primario boton-chico" type="submit">Responder</button></div></form>`;
+    const form = $('form', zona);
+    alEnviar(form, async (datos) => {
+      await api.responderReplica({ replicaPadre: resp.dataset.responder, kudo: id, contenido: datos.contenido });
+      aviso('Respuesta publicada.');
+      pintar();
+    });
+    $('textarea', form).focus();
+    return;
+  }
+  const rep = ev.target.closest('[data-reportar]');
+  if (rep) return reportar(rep.dataset.reportar, rep.dataset.reportar === 'kudo' ? id : rep.dataset.id);
+  const mod = ev.target.closest('[data-mod]');
+  if (mod) return moderar(mod.dataset.mod, mod.dataset.tipo, mod.dataset.id);
+  if (ev.target.closest('[data-ver-calificaciones]')) verCalificaciones();
+});
+
+pintar();
+</script>
+</body>
+</html>

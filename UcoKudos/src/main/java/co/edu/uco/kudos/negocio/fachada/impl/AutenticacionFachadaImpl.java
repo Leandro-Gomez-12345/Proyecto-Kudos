@@ -12,6 +12,23 @@ import co.edu.uco.kudos.transversal.excepciones.UcoKudosFachadaExcepcion;
 public final class AutenticacionFachadaImpl implements AutenticacionFachada {
 
 	@Override
+	public UsuarioDTO iniciarSesion(String correo) {
+		var daoFactory = DAOFactory.obtenerFactoria();
+		try {
+			var autenticacionNegocio = new AutenticacionNegocioImpl(daoFactory);
+			var resultado = autenticacionNegocio.iniciarSesion(correo);
+			return UsuarioDTOAssembler.obtenerInstancia().convertirADTO(resultado);
+		} catch (UcoKudosExcepcion excepcion) {
+			throw excepcion;
+		} catch (Exception excepcion) {
+			var mensajeUsuario = CatalogoMensajes.AutenticacionFachada.USUARIO_ERROR_INICIANDO_SESION;
+			throw UcoKudosFachadaExcepcion.crear(mensajeUsuario, excepcion.getMessage(), excepcion);
+		} finally {
+			daoFactory.cerrarConexion();
+		}
+	}
+
+	@Override
 	public UsuarioDTO consultarUsuarioPorCorreo(String correo) {
 		var daoFactory = DAOFactory.obtenerFactoria();
 		try {

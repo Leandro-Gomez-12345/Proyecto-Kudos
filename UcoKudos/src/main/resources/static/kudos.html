@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kudos | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { MODERADORES, CUENTA } from './js/catalogos.js';
+import { $, esc, opciones, dialogo, aviso, vacio, cargando } from './js/ui.js';
+import { montarPagina } from './js/ui.js';
+import { tarjetaKudo } from './js/kudo-vista.js';
+
+const yo = await montarPagina({
+  pagina: 'kudos',
+  titulo: 'Kudos',
+  descripcion: 'Los reconocimientos que se otorga la comunidad universitaria.',
+});
+const modera = MODERADORES.includes(yo.rol);
+
+$('#acciones').innerHTML = '<button class="boton boton-oro" type="button" id="otorgar">Otorgar un Kudo</button>';
+
+const [personas, categorias, estados] = await Promise.all([
+  api.consultarUsuarios(),
+  api.consultarCategorias(),
+  modera ? api.consultarEstadosContenido() : Promise.resolve([]),
+]);
+// Read model "Personas con cuenta activa": solo ellas pueden recibir un Kudo.
+const otras = personas.filter((p) => p.id !== yo.id && p.estadoCuenta === CUENTA.ACTIVA);
+const nombre = (p) => `${p.nombre} ${p.apellido}`;
+
+// El filtro vive en la URL para poder compartirlo o guardarlo.
+const params = new URLSearchParams(location.search);
+$('#vista').innerHTML = `
+  <form class="filtros" id="filtros" role="search" aria-label="Filtrar Kudos">
+    <div class="campo"><label for="f-vista">Mostrar</label>
+      <select id="f-vista" name="vista">
+        <option value="">Todos los Kudos</option>
+        <option value="recibidos">Los que recibí</option>
+        <option value="otorgados">Los que otorgué</option>
+      </select></div>
+    <div class="campo"><label for="f-persona">Persona</label>
+      <select id="f-persona" name="persona">${opciones(personas, { vacio: 'Cualquier persona', texto: nombre })}</select></div>
+    <div class="campo"><label for="f-categoria">Categoría</label>
+      <select id="f-categoria" name="categoria">${opciones(categorias, { vacio: 'Todas', texto: (c) => c.activa ? c.nombre : `${c.nombre} (inactiva)` })}</select></div>
+    ${modera ? `<div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estadoContenido">${opciones(estados.filter((e) => e.nombre !== 'Creado'), { vacio: 'Todos' })}</select></div>` : ''}
+    <div class="campo"><label for="f-texto">Buscar en el mensaje</label>
+      <input id="f-texto" name="texto" type="search" placeholder="Palabra o frase"></div>
+  </form>
+  <p class="texto-2 chico" id="resumen" aria-live="polite"></p>
+  <div id="lista" class="lista-kudos">${cargando()}</div>`;
+
+const filtros = $('#filtros');
+for (const [k, v] of params) if (filtros.elements[k]) filtros.elements[k].value = v;
+
+async function pintar() {
+  const datos = Object.fromEntries(new FormData(filtros));
+  const q = new URLSearchParams(Object.entries(datos).filter(([, v]) => v));
+  history.replaceState(null, '', q.toString() ? `?${q}` : location.pathname);
+  const filtro = { persona: datos.persona, categoria: datos.categoria, estadoContenido: datos.estadoContenido, texto: datos.texto };
+  if (datos.vista === 'recibidos') filtro.destinatario = yo.id;
+  if (datos.vista === 'otorgados') filtro.autor = yo.id;
+  const kudos = await api.consultarKudos(filtro);
+  $('#resumen').textContent = `${kudos.length} ${kudos.length === 1 ? 'Kudo' : 'Kudos'}`;
+  $('#lista').innerHTML = kudos.length
+    ? kudos.map((k) => tarjetaKudo(k)).join('')
+    : vacio(Object.values(datos).some(Boolean) ? 'Ningún Kudo coincide con el filtro.' : 'Todavía no hay Kudos.',
+      '<button class="boton boton-oro" type="button" data-otorgar>Otorgar el primero</button>');
+}
+
+let espera;
+filtros.addEventListener('input', () => {
+  clearTimeout(espera);
+  espera = setTimeout(pintar, 200);
+});
+
+async function otorgar() {
+  const activas = categorias.filter((c) => c.activa);
+  const ok = await dialogo({
+    titulo: 'Otorgar un Kudo',
+    textoAceptar: 'Otorgar Kudo',
+    cuerpo: `
+      <div class="campo"><label for="destinatario">Para</label>
+        <select id="destinatario" name="destinatario" required>${opciones(otras, { vacio: 'Elija a la persona', texto: (p) => `${nombre(p)}, ${p.rolNombre}` })}</select></div>
+      <div class="campo"><label for="categoria">Categoría</label>
+        <select id="categoria" name="categoria" required>${opciones(activas, { vacio: 'Elija una categoría' })}</select>
+        <p class="ayuda" id="ayuda-categoria"></p></div>
+      <div class="campo"><label for="contenido">Mensaje</label>
+        <textarea id="contenido" name="contenido" required placeholder="Cuente qué hizo y por qué lo reconoce."></textarea></div>`,
+    alAceptar: async (datos) => {
+      await api.crearKudo(datos);
+    },
+  });
+  if (ok) {
+    aviso('Kudo otorgado.');
+    pintar();
+  }
+}
+
+document.addEventListener('change', (ev) => {
+  if (ev.target.id === 'categoria') {
+    const c = categorias.find((x) => x.id === ev.target.value);
+    const ayuda = $('#ayuda-categoria');
+    if (ayuda) ayuda.textContent = c?.descripcion ?? '';
+  }
+});
+document.addEventListener('click', (ev) => {
+  if (ev.target.closest('#otorgar, [data-otorgar]')) otorgar();
+});
+
+pintar();
+</script>
+</body>
+</html>

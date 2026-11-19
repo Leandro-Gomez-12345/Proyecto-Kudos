@@ -4,7 +4,7 @@ import java.util.Locale;
 
 public final class UtilCorreoInstitucional {
 
-	public static final String DOMINIO = "uco.net.co";
+	public static final String DOMINIO = "uco.edu.co";
 	public static final String SUFIJO = "@" + DOMINIO;
 
 	private static final char ARROBA = '@';

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comunidad | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { AUTORIDADES, CUENTA, RANGO } from './js/catalogos.js';
+import { $, esc, insignia, opciones, dialogo, aviso, mostrarError, vacio, fecha, fechaHora, iniciales, pestanas, montarPagina } from './js/ui.js';
+
+const yo = await montarPagina({
+  pagina: 'comunidad',
+  titulo: 'Comunidad',
+  descripcion: 'Las personas de la comunidad universitaria registradas en Kudos.',
+});
+const esAutoridad = AUTORIDADES.includes(yo.rol);
+const [roles, estados] = await Promise.all([api.consultarRoles(), esAutoridad ? api.consultarEstadosCuenta() : Promise.resolve([])]);
+
+$('#vista').innerHTML = `
+  ${esAutoridad ? `<div class="pestanas" role="tablist" aria-label="Secciones">
+    <button role="tab" id="t-dir" aria-controls="p-dir" data-tab="directorio">Directorio</button>
+    <button role="tab" id="t-pend" aria-controls="p-pend" data-tab="pendientes">Registros por aprobar <span id="n-pend"></span></button>
+  </div>` : ''}
+  <section id="p-dir" role="tabpanel" aria-labelledby="t-dir">
+    <form class="filtros" id="filtros" role="search" aria-label="Buscar personas">
+      <div class="campo"><label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" type="search"></div>
+      <div class="campo"><label for="f-apellido">Apellido</label><input id="f-apellido" name="apellido" type="search"></div>
+      <div class="campo"><label for="f-rol">Rol</label><select id="f-rol" name="rol">${opciones(roles, { vacio: 'Todos' })}</select></div>
+      ${esAutoridad ? `<div class="campo"><label for="f-estado">Estado de la cuenta</label><select id="f-estado" name="estadoCuenta">${opciones(estados, { vacio: 'Todos' })}</select></div>` : ''}
+    </form>
+    ${esAutoridad ? '<p class="texto-2 chico">Puede gestionar las cuentas de las personas cuyo rol le corresponde y que pertenecen a su ámbito.</p>' : ''}
+    <div id="lista" class="rejilla"></div>
+  </section>
+  ${esAutoridad ? '<section id="p-pend" role="tabpanel" aria-labelledby="t-pend" hidden><div id="pendientes"></div></section>' : ''}`;
+
+let personas = [];
+async function pintarDirectorio() {
+  personas = await api.consultarUsuarios(Object.fromEntries(new FormData($('#filtros'))));
+  $('#lista').innerHTML = personas.length ? personas.map((p) => {
+    const acciones = [];
+    if (p.gestionable) {
+      acciones.push(`<button class="enlace" data-accion="ficha" data-id="${p.id}">Ver ficha</button>`);
+      if (p.estadoCuenta === CUENTA.ACTIVA) acciones.push(`<button class="enlace" data-accion="suspender" data-id="${p.id}">Suspender</button>`);
+      if (p.estadoCuenta === CUENTA.SUSPENDIDA) acciones.push(`<button class="enlace" data-accion="reactivar" data-id="${p.id}">Reactivar</button>`);
+      if ([CUENTA.ACTIVA, CUENTA.SUSPENDIDA].includes(p.estadoCuenta)) acciones.push(`<button class="enlace enlace-peligro" data-accion="desactivar" data-id="${p.id}">Desactivar</button>`);
+      acciones.push(`<button class="enlace" data-accion="rol" data-id="${p.id}">Cambiar rol</button>`);
+    }
+    return `<article class="ficha">
+      <div class="ficha-cabeza"><span class="avatar" aria-hidden="true">${esc(iniciales(`${p.nombre} ${p.apellido}`))}</span>
+        <div><h3>${esc(p.nombre)} ${esc(p.apellido)}</h3><p class="texto-2 chico" style="margin:0">${esc(p.rolNombre)}</p></div></div>
+      <div class="fila chico">${esAutoridad ? insignia(p.estadoNombre) : ''}<a href="kudos.html?persona=${encodeURIComponent(p.id)}">Ver sus Kudos</a>
+        ${p.id === yo.id ? '<span class="texto-2">(usted)</span>' : ''}</div>
+      ${acciones.length ? `<div class="fila chico">${acciones.join('')}</div>` : ''}
+    </article>`;
+  }).join('') : vacio('Nadie coincide con la búsqueda.');
+}
+$('#filtros').addEventListener('input', pintarDirectorio);
+
+async function pintarPendientes() {
+  const lista = await api.consultarUsuariosPendientesAprobacion();
+  $('#n-pend').textContent = lista.length ? `(${lista.length})` : '';
+  $('#pendientes').innerHTML = lista.length ? `
+    <p class="texto-2 chico">Aparecen las personas cuyo rol le corresponde decidir. La cuenta se activa cuando, además de aprobada, la persona valida su correo y su celular.</p>
+    <div class="tabla-envoltura"><table>
+      <thead><tr><th scope="col">Persona</th><th scope="col">Rol</th><th scope="col">Registro</th><th scope="col">Validaciones</th><th scope="col">Decisión</th></tr></thead>
+      <tbody>${lista.map((p) => `<tr>
+        <td><strong>${esc(p.nombre)} ${esc(p.apellido)}</strong><br><span class="texto-2 chico">${esc(p.correoInstitucional)}</span></td>
+        <td>${esc(p.rolNombre)}</td>
+        <td>${esc(fechaHora(p.fechaRegistro))}</td>
+        <td class="chico">Correo: ${p.correoVerificado ? 'validado' : 'sin validar'}<br>Celular: ${p.celularVerificado ? 'validado' : 'sin validar'}</td>
+        <td><div class="acciones">
+          <button class="boton boton-primario boton-chico" data-accion="aprobar" data-id="${p.id}">Aprobar</button>
+          <button class="boton boton-chico" data-accion="rechazar" data-id="${p.id}" data-nombre="${esc(p.nombre)} ${esc(p.apellido)}">Rechazar</button>
+        </div></td></tr>`).join('')}</tbody>
+    </table></div>` : vacio('No tiene registros pendientes a su cargo.');
+}
+
+const campoJustificacion = (etiqueta) => `<div class="campo"><label for="justificacion">${etiqueta}</label>
+  <textarea id="justificacion" name="justificacion" maxlength="200" placeholder="Entre 10 y 200 caracteres."></textarea>
+  <p class="ayuda">Queda en la auditoría.</p></div>`;
+
+async function ficha(id) {
+  const [p, vinc, cf, cp] = await Promise.all([
+    api.consultarInformacionPersonalUsuario(id),
+    api.consultarVinculacionesAcademicas({ usuario: id }),
+    api.consultarCoordinacionesFacultad({ usuario: id }),
+    api.consultarCoordinacionesPrograma({ usuario: id }),
+  ]);
+  const cargos = [
+    ...cf.map((c) => `Coordina ${c.unidadNombre} desde ${fecha(c.fechaInicio)}${c.fechaFin ? ` hasta ${fecha(c.fechaFin)}` : ''}`),
+    ...cp.map((c) => `Coordina ${c.unidadNombre} desde ${fecha(c.fechaInicio)}${c.fechaFin ? ` hasta ${fecha(c.fechaFin)}` : ''}`),
+    ...vinc.map((v) => `${v.programaNombre} desde ${fecha(v.fechaVinculacion)}${v.fechaDesvinculacion ? ` hasta ${fecha(v.fechaDesvinculacion)}` : ''}`),
+  ];
+  await dialogo({
+    titulo: `${p.nombre} ${p.apellido}`,
+    textoAceptar: 'Cerrar',
+    cuerpo: `<dl class="datos">
+      <dt>Rol</dt><dd>${esc(p.rolNombre)}</dd>
+      <dt>Cuenta</dt><dd>${insignia(p.estadoNombre)}</dd>
+      <dt>Correo</dt><dd>${esc(p.correoInstitucional)} ${p.correoVerificado ? '' : '<span class="texto-2">(sin validar)</span>'}</dd>
+      <dt>Celular</dt><dd>${esc(p.celular)} ${p.celularVerificado ? '' : '<span class="texto-2">(sin validar)</span>'}</dd>
+      <dt>Registro</dt><dd>${esc(fechaHora(p.fechaRegistro))}</dd>
+      <dt>Unidades</dt><dd>${cargos.length ? cargos.map(esc).join('<br>') : 'Ninguna'}</dd>
+    </dl>`,
+  });
+}
+
+document.addEventListener('click', async (ev) => {
+  const b = ev.target.closest('[data-accion]');
+  if (!b) return;
+  const id = b.dataset.id;
+  const p = personas.find((x) => x.id === id);
+  const nombre = p ? `${p.nombre} ${p.apellido}` : b.dataset.nombre;
+  let ok = false;
+  try {
+    switch (b.dataset.accion) {
+      case 'ficha': return ficha(id);
+      case 'aprobar': {
+        const r = await api.aprobarUsuario(id);
+        aviso(r.estadoCuenta === CUENTA.ACTIVA ? 'Registro aprobado. La cuenta quedó activa.' : 'Registro aprobado. La cuenta se activa cuando la persona valide correo y celular.');
+        ok = true;
+        break;
+      }
+      case 'rechazar':
+        ok = await dialogo({ titulo: `Rechazar el registro de ${nombre}`, textoAceptar: 'Rechazar registro', peligro: true,
+          cuerpo: campoJustificacion('Razón del rechazo'), alAceptar: (d) => api.rechazarUsuario(id, d.justificacion) });
+        if (ok) aviso('Registro rechazado.');
+        break;
+      case 'suspender':
+        ok = await dialogo({ titulo: `Suspender la cuenta de ${nombre}`, textoAceptar: 'Suspender cuenta', peligro: true,
+          cuerpo: '<p style="margin:0">Mientras esté suspendida, la persona no puede ingresar.</p>' + campoJustificacion('Razón de la suspensión'),
+          alAceptar: (d) => api.suspenderCuentaUsuario(id, d.justificacion) });
+        if (ok) aviso('Cuenta suspendida.');
+        break;
+      case 'reactivar':
+        await api.reactivarCuentaUsuario(id);
+        aviso('Cuenta reactivada.');
+        ok = true;
+        break;
+      case 'desactivar':
+        ok = await dialogo({ titulo: `Desactivar la cuenta de ${nombre}`, textoAceptar: 'Desactivar cuenta', peligro: true,
+          cuerpo: '<p style="margin:0">La desactivación es definitiva. Sus Kudos, réplicas y su historial se conservan.</p>' + campoJustificacion('Razón de la desactivación'),
+          alAceptar: (d) => api.desactivarCuentaUsuario(id, d.justificacion) });
+        if (ok) aviso('Cuenta desactivada.');
+        break;
+      case 'rol': {
+        const posibles = roles.filter((r) => r.id !== p.rol && RANGO[r.id] <= RANGO[yo.rol]);
+        ok = await dialogo({ titulo: `Cambiar el rol de ${nombre}`, textoAceptar: 'Cambiar rol',
+          cuerpo: `<p style="margin:0">Rol actual: <strong>${esc(p.rolNombre)}</strong>. Antes debe cerrarse cualquier coordinación o vinculación vigente de la persona.</p>
+            <div class="campo"><label for="rol">Rol nuevo</label><select id="rol" name="rol">${opciones(posibles, { vacio: 'Elija el rol' })}</select></div>`,
+          alAceptar: (d) => api.cambiarRolUsuario(id, d) });
+        if (ok) aviso('Rol cambiado.');
+        break;
+      }
+      default:
+    }
+  } catch (e) {
+    mostrarError(e);
+  }
+  if (ok) {
+    pintarDirectorio();
+    if (esAutoridad) pintarPendientes();
+  }
+});
+
+if (esAutoridad) {
+  pestanas($('.pestanas'));
+  pintarPendientes();
+}
+pintarDirectorio();
+</script>
+</body>
+</html>

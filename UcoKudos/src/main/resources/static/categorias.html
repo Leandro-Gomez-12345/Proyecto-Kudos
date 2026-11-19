@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Categorías | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { GESTORES_CATEGORIAS } from './js/catalogos.js';
+import { $, esc, insignia, dialogo, aviso, mostrarError, vacio, montarPagina } from './js/ui.js';
+
+const yo = await montarPagina({
+  pagina: 'categorias',
+  titulo: 'Categorías',
+  descripcion: 'Clasifican los Kudos. Solo las categorías activas se ofrecen al otorgar un Kudo; las inactivas se conservan en los Kudos que ya las usan.',
+});
+const gestiona = GESTORES_CATEGORIAS.includes(yo.rol);
+if (gestiona) $('#acciones').innerHTML = '<button class="boton boton-primario" type="button" data-nueva>Nueva categoría</button>';
+
+$('#vista').innerHTML = `
+  <form class="filtros" id="filtros" role="search" aria-label="Filtrar categorías">
+    <div class="campo"><label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" type="search"></div>
+    <div class="campo"><label for="f-activa">Estado</label>
+      <select id="f-activa" name="activa"><option value="">Todas</option><option value="true">Activas</option><option value="false">Inactivas</option></select></div>
+  </form>
+  <div id="lista" class="rejilla"></div>`;
+
+let categorias = [];
+async function pintar() {
+  categorias = await api.consultarCategorias(Object.fromEntries(new FormData($('#filtros'))));
+  $('#lista').innerHTML = categorias.length ? categorias.map((c) => `
+    <article class="ficha">
+      <div class="fila" style="justify-content:space-between"><h3>${esc(c.nombre)}</h3>${insignia(c.activa ? 'Activa' : 'Inactiva')}</div>
+      <p class="texto-2" style="margin:0">${esc(c.descripcion)}</p>
+      <p class="chico" style="margin:0"><a href="kudos.html?categoria=${encodeURIComponent(c.id)}">${c.kudos} ${c.kudos === 1 ? 'Kudo' : 'Kudos'}</a></p>
+      ${gestiona ? `<div class="fila chico">
+        <button class="enlace" data-accion="nombre" data-id="${c.id}">Cambiar nombre</button>
+        <button class="enlace" data-accion="descripcion" data-id="${c.id}">Cambiar descripción</button>
+        <button class="enlace ${c.activa ? 'enlace-peligro' : ''}" data-accion="${c.activa ? 'desactivar' : 'activar'}" data-id="${c.id}">${c.activa ? 'Desactivar' : 'Activar'}</button>
+      </div>` : ''}
+    </article>`).join('') : vacio('Ninguna categoría coincide con el filtro.');
+}
+$('#filtros').addEventListener('input', pintar);
+
+const campoNombre = (v = '') => `<div class="campo"><label for="nombre">Nombre</label>
+  <input id="nombre" name="nombre" type="text" maxlength="50" value="${esc(v)}" placeholder="Trabajo en equipo">
+  <p class="ayuda">Entre 3 y 50 caracteres, solo letras y espacios, con mayúscula inicial.</p></div>`;
+const campoDescripcion = (v = '') => `<div class="campo"><label for="descripcion">Descripción</label>
+  <textarea id="descripcion" name="descripcion" maxlength="300" placeholder="Qué conductas o logros reconoce">${esc(v)}</textarea>
+  <p class="ayuda">Entre 10 y 300 caracteres.</p></div>`;
+
+document.addEventListener('click', async (ev) => {
+  if (ev.target.closest('[data-nueva]')) {
+    const ok = await dialogo({
+      titulo: 'Nueva categoría', textoAceptar: 'Crear categoría',
+      cuerpo: campoNombre() + campoDescripcion() + '<p class="texto-2 chico" style="margin:0">La categoría nace activa.</p>',
+      alAceptar: (d) => api.registrarCategoria(d),
+    });
+    if (ok) { aviso('Categoría creada.'); pintar(); }
+    return;
+  }
+  const b = ev.target.closest('[data-accion]');
+  if (!b) return;
+  const c = categorias.find((x) => x.id === b.dataset.id);
+  const acciones = {
+    nombre: () => dialogo({
+      titulo: 'Cambiar nombre', textoAceptar: 'Guardar nombre',
+      cuerpo: campoNombre(c.nombre) + (c.kudos ? `<p class="texto-2 chico" style="margin:0">Los ${c.kudos} Kudos que ya usan esta categoría conservan el nombre con el que se crearon.</p>` : ''),
+      alAceptar: (d) => api.cambiarNombreCategoria(c.id, d),
+    }),
+    descripcion: () => dialogo({
+      titulo: 'Cambiar descripción', textoAceptar: 'Guardar descripción',
+      cuerpo: campoDescripcion(c.descripcion),
+      alAceptar: (d) => api.cambiarDescripcionCategoria(c.id, d),
+    }),
+    desactivar: () => dialogo({
+      titulo: `Desactivar ${c.nombre}`, textoAceptar: 'Desactivar', peligro: true,
+      cuerpo: `<p style="margin:0">Dejará de ofrecerse al otorgar Kudos. Los Kudos que ya la usan la conservan.</p>
+        ${categorias.filter((x) => x.activa).length === 1 ? '<p class="error-form" style="margin:0">Es la única categoría activa: nadie podrá otorgar Kudos hasta que active otra.</p>' : ''}`,
+      alAceptar: () => api.desactivarCategoria(c.id),
+    }),
+    activar: async () => {
+      try { await api.activarCategoria(c.id); return true; } catch (e) { mostrarError(e); return false; }
+    },
+  };
+  const ok = await acciones[b.dataset.accion]();
+  if (ok) { aviso('Categoría actualizada.'); pintar(); }
+});
+
+pintar();
+</script>
+</body>
+</html>

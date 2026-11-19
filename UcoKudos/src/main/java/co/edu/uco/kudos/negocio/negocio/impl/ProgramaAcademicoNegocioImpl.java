@@ -48,8 +48,6 @@ public final class ProgramaAcademicoNegocioImpl implements ProgramaAcademicoNego
 
 	@Override
 	public List<ProgramaAcademicoDominio> consultarProgramasAcademicos(ProgramaAcademicoDominio filtro) {
-		AsegurarUsuarioActivoRule.obtenerInstancia().ejecutar(ContextoEjecucion.obtenerIdEjecutor(), daoFactory);
-
 		var filtroEntidad = ProgramaAcademicoEntidadAssembler.obtenerInstancia().convertirAEntidad(filtro);
 		var programas = daoFactory.obtenerProgramaAcademicoDAO().consultarPorFiltro(filtroEntidad);
 		return ProgramaAcademicoEntidadAssembler.obtenerInstancia().convertirADominio(programas);

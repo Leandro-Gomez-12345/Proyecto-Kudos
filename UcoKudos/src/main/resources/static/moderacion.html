@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moderación | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { MODERADORES, REVISION, CONTENIDO } from './js/catalogos.js';
+import { $, esc, insignia, opciones, dialogo, aviso, mostrarError, vacio, fechaHora, pestanas, montarPagina } from './js/ui.js';
+
+const yo = await montarPagina({
+  pagina: 'moderacion',
+  titulo: 'Moderación',
+  descripcion: 'Revise los Kudos y las réplicas reportados. Cada revisión resuelve a la vez todos los reportes del contenido.',
+});
+if (!MODERADORES.includes(yo.rol)) {
+  $('#vista').innerHTML = vacio('Solo el Rector y el Coordinador Académico pueden moderar contenido.');
+  throw new Error('sin permiso');
+}
+const [motivos, estadosRevision] = await Promise.all([api.consultarMotivos(), api.consultarEstadosRevision()]);
+
+$('#vista').innerHTML = `
+  <div class="pestanas" role="tablist" aria-label="Secciones">
+    <button role="tab" id="t-rep" aria-controls="p-rep" data-tab="reportes">Reportes</button>
+    <button role="tab" id="t-cur" aria-controls="p-cur" data-tab="en-curso">Revisiones en curso <span id="n-cur"></span></button>
+    <button role="tab" id="t-his" aria-controls="p-his" data-tab="historico">Histórico</button>
+  </div>
+  <section id="p-rep" role="tabpanel" aria-labelledby="t-rep">
+    <form class="filtros" id="f-rep">
+      <div class="campo"><label for="fr-tipo">Contenido</label><select id="fr-tipo" name="tipo"><option value="">Kudos y réplicas</option><option value="kudo">Kudos</option><option value="replica">Réplicas</option></select></div>
+      <div class="campo"><label for="fr-estado">Estado del reporte</label><select id="fr-estado" name="estado">
+        <option value="">Todos</option><option selected>Pendiente</option><option>En revisión</option><option>Aceptado</option><option>Rechazado</option></select></div>
+      <div class="campo"><label for="fr-motivo">Motivo</label><select id="fr-motivo" name="motivo">${opciones(motivos, { vacio: 'Todos' })}</select></div>
+    </form>
+    <p class="texto-2 chico">El estado del reporte se deduce de su revisión: sin revisión está Pendiente; con revisión en curso, En revisión; si el contenido se veta, Aceptado; si se libera, Rechazado.</p>
+    <div id="reportes"></div>
+  </section>
+  <section id="p-cur" role="tabpanel" aria-labelledby="t-cur" hidden><div id="en-curso" class="pila"></div></section>
+  <section id="p-his" role="tabpanel" aria-labelledby="t-his" hidden>
+    <form class="filtros" id="f-his">
+      <div class="campo"><label for="fh-tipo">Contenido</label><select id="fh-tipo" name="tipo"><option value="">Kudos y réplicas</option><option value="kudo">Kudos</option><option value="replica">Réplicas</option></select></div>
+      <div class="campo"><label for="fh-estado">Decisión</label><select id="fh-estado" name="estadoRevision">${opciones(estadosRevision.filter((e) => e.id !== REVISION.EN_CURSO), { vacio: 'Todas' })}</select></div>
+    </form>
+    <div id="historico"></div>
+  </section>`;
+
+const extracto = (t, n = 140) => (t.length > n ? `${t.slice(0, n)}…` : t);
+const enlaceContenido = (r) => (r?.kudo ? `kudo.html?id=${encodeURIComponent(r.kudo)}` : '#');
+
+async function pintarReportes() {
+  const f = Object.fromEntries(new FormData($('#f-rep')));
+  const filtro = { estado: f.estado, motivo: f.motivo };
+  const [rk, rr] = await Promise.all([
+    f.tipo === 'replica' ? [] : api.consultarReportesKudo(filtro),
+    f.tipo === 'kudo' ? [] : api.consultarReportesReplica(filtro),
+  ]);
+  const filas = [...rk.map((r) => ({ ...r, tipo: 'kudo', objetivo: r.kudo })), ...rr.map((r) => ({ ...r, tipo: 'replica', objetivo: r.replica }))]
+    .sort((a, b) => b.fechaReporte.localeCompare(a.fechaReporte));
+  const yaOfrecido = new Set();
+  $('#reportes').innerHTML = filas.length ? `<div class="tabla-envoltura"><table>
+    <thead><tr><th scope="col">Contenido reportado</th><th scope="col">Motivo</th><th scope="col">Reportó</th><th scope="col">Estado</th><th scope="col"><span class="sr">Acciones</span></th></tr></thead>
+    <tbody>${filas.map((r) => {
+      const c = r.contenidoResumen;
+      const ofrecer = c?.estadoContenido === CONTENIDO.REPORTADO && !yaOfrecido.has(r.objetivo);
+      if (ofrecer) yaOfrecido.add(r.objetivo);
+      return `<tr>
+        <td><span class="chico texto-2">${r.tipo === 'kudo' ? 'Kudo' : 'Réplica'} de ${esc(c?.autorNombre)}</span><br>
+          <a href="${enlaceContenido(c)}">${esc(extracto(c?.contenido ?? ''))}</a></td>
+        <td>${esc(r.motivoNombre)}${r.descripcion ? `<br><span class="chico texto-2">${esc(r.descripcion)}</span>` : ''}</td>
+        <td>${esc(r.usuarioNombre)}<br><span class="chico texto-2">${esc(fechaHora(r.fechaReporte))}</span></td>
+        <td>${insignia(r.estado)}</td>
+        <td>${ofrecer ? `<button class="boton boton-chico boton-primario" data-iniciar="${r.tipo}" data-id="${r.objetivo}">Iniciar revisión</button>` : ''}</td>
+      </tr>`;
+    }).join('')}</tbody></table></div>` : vacio('No hay reportes con ese filtro.');
+}
+
+function tarjetaRevision(r, tipo, enCurso) {
+  const c = r.contenidoResumen;
+  return `<article class="panel">
+    <div class="panel-cabeza">
+      <div><h3>${tipo === 'kudo' ? `Kudo para ${esc(c?.destinatarioNombre)}` : 'Réplica'} de ${esc(c?.autorNombre)}</h3>
+        <p class="texto-2 chico" style="margin:4px 0 0">${enCurso ? 'Revisión iniciada' : 'Decidida'} por ${esc(r.moderadorNombre)}, ${esc(fechaHora(enCurso ? r.fechaInicio : r.fechaCierre))}${r.directa ? ' (veto directo)' : ''}</p></div>
+      ${insignia(r.estadoNombre)}
+    </div>
+    <blockquote style="margin:0 0 12px;padding:10px 14px;border-left:3px solid var(--linea-fuerte);background:var(--papel);white-space:pre-wrap">${esc(c?.contenido)}</blockquote>
+    ${r.justificacion ? `<p><strong>Justificación:</strong> ${esc(r.justificacion)}</p>` : ''}
+    <p class="chico texto-2">${r.reportes.length ? `Reportes resueltos con esta revisión: ${r.reportes.map((x) => `${esc(x.motivoNombre)} (${esc(x.usuarioNombre)})`).join(', ')}` : 'Sin reportes asociados.'}</p>
+    <div class="fila">
+      <a class="boton boton-chico boton-sutil" href="${enlaceContenido(c)}">Ver en contexto</a>
+      ${enCurso ? `<button class="boton boton-chico boton-peligro" data-cerrar="vetar" data-tipo="${tipo}" data-id="${r.id}">Vetar contenido</button>
+        <button class="boton boton-chico" data-cerrar="liberar" data-tipo="${tipo}" data-id="${r.id}">Liberar contenido</button>` : ''}
+    </div>
+  </article>`;
+}
+
+async function pintarEnCurso() {
+  const [rk, rr] = await Promise.all([
+    api.consultarRevisionesKudo({ estadoRevision: REVISION.EN_CURSO }),
+    api.consultarRevisionesReplica({ estadoRevision: REVISION.EN_CURSO }),
+  ]);
+  const n = rk.length + rr.length;
+  $('#n-cur').textContent = n ? `(${n})` : '';
+  $('#en-curso').innerHTML = n
+    ? [...rk.map((r) => tarjetaRevision(r, 'kudo', true)), ...rr.map((r) => tarjetaRevision(r, 'replica', true))].join('')
+    : vacio('No hay revisiones en curso. Inicie una desde la pestaña Reportes.');
+}
+
+async function pintarHistorico() {
+  const f = Object.fromEntries(new FormData($('#f-his')));
+  const filtro = { estadoRevision: f.estadoRevision };
+  const [rk, rr] = await Promise.all([
+    f.tipo === 'replica' ? [] : api.consultarRevisionesKudo(filtro),
+    f.tipo === 'kudo' ? [] : api.consultarRevisionesReplica(filtro),
+  ]);
+  const lista = [...rk.map((r) => ({ r, t: 'kudo' })), ...rr.map((r) => ({ r, t: 'replica' }))]
+    .filter(({ r }) => r.estadoRevision !== REVISION.EN_CURSO)
+    .sort((a, b) => b.r.fechaCierre.localeCompare(a.r.fechaCierre));
+  $('#historico').innerHTML = lista.length ? `<div class="pila">${lista.map(({ r, t }) => tarjetaRevision(r, t, false)).join('')}</div>` : vacio('Todavía no hay decisiones de moderación.');
+}
+
+const pintarTodo = () => Promise.all([pintarReportes(), pintarEnCurso(), pintarHistorico()]);
+$('#f-rep').addEventListener('change', pintarReportes);
+$('#f-his').addEventListener('change', pintarHistorico);
+
+document.addEventListener('click', async (ev) => {
+  const ini = ev.target.closest('[data-iniciar]');
+  if (ini) {
+    try {
+      if (ini.dataset.iniciar === 'kudo') await api.iniciarRevisionKudo({ kudo: ini.dataset.id });
+      else await api.iniciarRevisionReplica({ replica: ini.dataset.id });
+      aviso('Revisión iniciada. Sus reportes pendientes quedan en revisión.');
+      await pintarTodo();
+      $('#t-cur').click();
+    } catch (e) {
+      mostrarError(e);
+    }
+    return;
+  }
+  const b = ev.target.closest('[data-cerrar]');
+  if (!b) return;
+  const veto = b.dataset.cerrar === 'vetar';
+  const esKudo = b.dataset.tipo === 'kudo';
+  const fn = esKudo
+    ? (veto ? api.cerrarRevisionKudoConVeto : api.cerrarRevisionKudoConLiberacion)
+    : (veto ? api.cerrarRevisionReplicaConVeto : api.cerrarRevisionReplicaConLiberacion);
+  const ok = await dialogo({
+    titulo: veto ? 'Vetar el contenido' : 'Liberar el contenido',
+    textoAceptar: veto ? 'Vetar contenido' : 'Liberar contenido',
+    peligro: veto,
+    cuerpo: `<p style="margin:0">${veto
+      ? 'El contenido deja de estar disponible y sus reportes quedan aceptados.'
+      : 'El contenido vuelve a estar visible y sus reportes quedan rechazados.'}</p>
+      <div class="campo"><label for="justificacion">Justificación</label>
+        <textarea id="justificacion" name="justificacion" maxlength="1000" placeholder="Entre 10 y 1000 caracteres."></textarea></div>`,
+    alAceptar: (d) => fn(b.dataset.id, d.justificacion),
+  });
+  if (ok) {
+    aviso(veto ? 'Contenido vetado.' : 'Contenido liberado.');
+    pintarTodo();
+  }
+});
+
+pestanas($('.pestanas'));
+pintarTodo();
+</script>
+</body>
+</html>

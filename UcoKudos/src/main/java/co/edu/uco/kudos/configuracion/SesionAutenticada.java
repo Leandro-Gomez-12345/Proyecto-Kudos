@@ -1,47 +1,43 @@
 package co.edu.uco.kudos.configuracion;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import co.edu.uco.kudos.transversal.utilitarios.UtilCorreoInstitucional;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
+import jakarta.servlet.http.HttpServletRequest;
 
 public final class SesionAutenticada {
+
+	private static final String ATRIBUTO_CORREO = SesionAutenticada.class.getName() + ".correo";
 
 	private SesionAutenticada() {
 
 	}
 
-	public static String obtenerCorreo() {
-		var autenticacion = SecurityContextHolder.getContext().getAuthentication();
-		return esUsuarioDeGoogle(autenticacion) ? UtilCorreoInstitucional.normalizar(extraerCorreo(autenticacion))
-				: UtilTexto.VACIA;
+	public static void abrir(HttpServletRequest peticion, String correo) {
+		cerrar(peticion);
+		peticion.getSession(true).setAttribute(ATRIBUTO_CORREO, correo);
 	}
 
-	public static String obtenerNombre() {
-		return extraerTexto(true);
-	}
-
-	public static String obtenerApellido() {
-		return extraerTexto(false);
-	}
-
-	private static String extraerTexto(boolean nombre) {
-		var autenticacion = SecurityContextHolder.getContext().getAuthentication();
-		if (!esUsuarioDeGoogle(autenticacion)) {
-			return UtilTexto.VACIA;
+	public static void cerrar(HttpServletRequest peticion) {
+		var sesion = peticion.getSession(false);
+		if (sesion != null) {
+			sesion.invalidate();
 		}
-		var usuario = (OidcUser) autenticacion.getPrincipal();
-		return UtilTexto.quitarEspaciosEnBlanco(nombre ? usuario.getGivenName() : usuario.getFamilyName());
 	}
 
-	private static String extraerCorreo(Authentication autenticacion) {
-		return ((OidcUser) autenticacion.getPrincipal()).getEmail();
+	public static String obtenerCorreo(HttpServletRequest peticion) {
+		var sesion = peticion.getSession(false);
+		if (sesion != null && sesion.getAttribute(ATRIBUTO_CORREO) instanceof String correo) {
+			return correo;
+		}
+		return UtilTexto.VACIA;
 	}
 
-	private static boolean esUsuarioDeGoogle(Authentication autenticacion) {
-		return autenticacion != null && autenticacion.isAuthenticated()
-				&& autenticacion.getPrincipal() instanceof OidcUser;
+	public static String obtenerCorreo() {
+		if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes atributos) {
+			return obtenerCorreo(atributos.getRequest());
+		}
+		return UtilTexto.VACIA;
 	}
 }

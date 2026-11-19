@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoría | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { AUDITORES } from './js/catalogos.js';
+import { $, esc, opciones, vacio, fechaHora, montarPagina } from './js/ui.js';
+
+const yo = await montarPagina({
+  pagina: 'auditoria',
+  titulo: 'Auditoría',
+  descripcion: 'Registro histórico de solo lectura: quién hizo cada acción, sobre qué registro y cuándo. El correo y el celular aparecen enmascarados.',
+});
+if (!AUDITORES.includes(yo.rol)) {
+  $('#vista').innerHTML = vacio('No tiene permiso para consultar la auditoría.');
+  throw new Error('sin permiso');
+}
+
+const OBJETOS = ['Usuario', 'Categoria', 'Facultad', 'ProgramaAcademico', 'CoordinacionFacultad', 'CoordinacionPrograma',
+  'VinculacionAcademica', 'Kudo', 'Replica', 'CalificacionKudo', 'CalificacionReplica', 'RevisionKudo', 'RevisionReplica', 'ReporteKudo', 'ReporteReplica'];
+const personas = await api.consultarUsuarios();
+
+$('#vista').innerHTML = `
+  <form class="filtros" id="filtros" role="search" aria-label="Filtrar la auditoría">
+    <div class="campo"><label for="f-usuario">Persona</label>
+      <select id="f-usuario" name="usuario">${opciones(personas, { vacio: 'Todas', texto: (p) => `${p.nombre} ${p.apellido}` })}</select></div>
+    <div class="campo"><label for="f-accion">Acción</label><input id="f-accion" name="accion" type="search" placeholder="Ej: Aprobar usuario"></div>
+    <div class="campo"><label for="f-objeto">Objeto afectado</label>
+      <select id="f-objeto" name="objetoAfectado">${opciones(OBJETOS.map((o) => ({ id: o, nombre: o })), { vacio: 'Todos' })}</select></div>
+    <div class="campo"><label for="f-desde">Desde</label><input id="f-desde" name="desde" type="date"></div>
+    <div class="campo"><label for="f-hasta">Hasta</label><input id="f-hasta" name="hasta" type="date"></div>
+  </form>
+  <p class="texto-2 chico" id="total" aria-live="polite"></p>
+  <div id="lista"></div>`;
+
+async function pintar() {
+  const lista = await api.consultarAuditorias(Object.fromEntries(new FormData($('#filtros'))));
+  $('#total').textContent = `${lista.length} ${lista.length === 1 ? 'registro' : 'registros'}`;
+  $('#lista').innerHTML = lista.length ? `<div class="tabla-envoltura"><table>
+    <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Persona</th><th scope="col">Acción</th><th scope="col">Objeto</th><th scope="col">Detalle</th></tr></thead>
+    <tbody>${lista.map((a) => `<tr>
+      <td style="white-space:nowrap">${esc(fechaHora(a.fechaHora))}</td>
+      <td>${esc(a.usuarioNombre)}</td><td>${esc(a.accion)}</td><td>${esc(a.objetoAfectado)}</td>
+      <td class="chico">${esc(a.detalle)}</td></tr>`).join('')}</tbody></table></div>` : vacio('Ningún registro coincide con el filtro.');
+}
+let espera;
+$('#filtros').addEventListener('input', () => { clearTimeout(espera); espera = setTimeout(pintar, 200); });
+pintar();
+</script>
+</body>
+</html>

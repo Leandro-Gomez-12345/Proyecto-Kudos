@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingresar | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<div class="portada">
+  <section class="portada-arte" aria-labelledby="titular">
+    <div id="marca"></div>
+    <div>
+      <h1 id="titular">Reconozca lo que la comunidad UCO hace bien.</h1>
+      <p>Estudiantes, docentes y coordinadores se otorgan Kudos por su liderazgo, su trabajo en equipo y su servicio. Cada reconocimiento queda a la vista de toda la comunidad.</p>
+    </div>
+    <figure class="carta-muestra" aria-label="Ejemplo de Kudo">
+      <span class="kudo-cinta"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5l3.9 8.6 9.4 1-7 6.4 2 9.2L16 23l-8.3 4.7 2-9.2-7-6.4 9.4-1z"/></svg>Trabajo en equipo</span>
+      <p class="kudo-para">Para Mateo Giraldo Castaño</p>
+      <p class="kudo-de">De Valentina Arango Duque</p>
+      <p class="kudo-mensaje" style="font-size:1rem">Gracias Mateo por liderar el proyecto de Bases de Datos y explicarle a todo el grupo cómo normalizar el modelo.</p>
+    </figure>
+  </section>
+
+  <main class="portada-form" id="contenido">
+    <div>
+      <h2>Ingresar</h2>
+      <p class="texto-2">Escriba su correo institucional.</p>
+    </div>
+    <form id="form-ingreso" class="formulario" novalidate>
+      <div class="campo">
+        <label for="correo">Correo institucional</label>
+        <input id="correo" name="correo" type="email" autocomplete="username" placeholder="nombre.apellido@uco.edu.co" required>
+      </div>
+      <p class="error-form" role="alert" hidden></p>
+      <button class="boton boton-primario" type="submit">Ingresar</button>
+    </form>
+    <p class="texto-2 chico">Si es la primera vez que ingresa, después le pediremos los datos para crear su cuenta en Kudos.</p>
+  </main>
+</div>
+
+<script type="module">
+import * as api from './js/api.js';
+import { CUENTA } from './js/catalogos.js';
+import { $, MARCA, alEnviar } from './js/ui.js';
+
+$('#marca').innerHTML = MARCA;
+
+function irA(sesion) {
+  if (!sesion.registrado) location.replace('registro.html');
+  else location.replace(sesion.usuario.estadoCuenta === CUENTA.ACTIVA ? 'kudos.html' : 'verificacion.html');
+}
+
+const existente = await api.sesionActual();
+if (existente) irA(existente);
+
+alEnviar($('#form-ingreso'), async (datos) => irA(await api.ingresar(datos.correo)));
+</script>
+</body>
+</html>

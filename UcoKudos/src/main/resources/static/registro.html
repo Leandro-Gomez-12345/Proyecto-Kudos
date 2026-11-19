@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crear cuenta | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<div class="portada">
+  <section class="portada-arte">
+    <div id="marca"></div>
+    <div>
+      <h1>Cree su cuenta en Kudos.</h1>
+      <p>Su cuenta se activa cuando se cumplen tres condiciones: la autoridad que corresponde a su rol aprueba el registro y confirma su correo institucional y su celular.</p>
+    </div>
+    <ol class="pasos" style="max-width:420px;color:var(--texto)">
+      <li class="paso"><span>Registre sus datos, elija su rol y, si es estudiante o docente, su programa académico.</span></li>
+      <li class="paso"><span>Espere la aprobación de su registro.</span></li>
+      <li class="paso"><span>La autoridad confirma su correo y su celular y su cuenta queda activa.</span></li>
+    </ol>
+  </section>
+
+  <main class="portada-form" id="contenido">
+    <div>
+      <h2>Registro</h2>
+      <p class="texto-2">Todos los datos son obligatorios.</p>
+    </div>
+    <form id="form-registro" class="formulario" novalidate>
+      <div class="campos">
+        <div class="campo">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" maxlength="60" autocomplete="given-name" placeholder="Luisa Fernanda" required>
+        </div>
+        <div class="campo">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" name="apellido" type="text" maxlength="60" autocomplete="family-name" placeholder="Ospina Ríos" required>
+        </div>
+      </div>
+      <div class="campo">
+        <label for="correoInstitucional">Correo institucional</label>
+        <input id="correoInstitucional" name="correoInstitucional" type="email" maxlength="100" autocomplete="email" readonly required>
+        <p class="ayuda">Es el correo con el que ingresó.</p>
+      </div>
+      <div class="campo">
+        <label for="celular">Celular</label>
+        <input id="celular" name="celular" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="3104567821" required>
+        <p class="ayuda">10 dígitos que empiezan en 3, sin espacios ni indicativo.</p>
+      </div>
+      <div class="campo">
+        <label for="rol">Rol en la universidad</label>
+        <select id="rol" name="rol" required></select>
+        <p class="ayuda" id="ayuda-rol"></p>
+      </div>
+      <div class="campo" id="bloque-programas" hidden>
+        <span class="etiqueta" id="etiqueta-programas">Programa académico</span>
+        <div class="lista-opciones" id="lista-programas" role="group" aria-labelledby="etiqueta-programas"></div>
+        <p class="ayuda">Elija al menos un programa. Si estudia o enseña en varios, marque todos.</p>
+      </div>
+      <p class="error-form" role="alert" hidden></p>
+      <button class="boton boton-primario" type="submit">Crear cuenta</button>
+    </form>
+    <p>¿Ya tiene cuenta? <a href="index.html">Ingrese</a></p>
+  </main>
+</div>
+
+<script type="module">
+import * as api from './js/api.js';
+import { AUTORIDAD_DE, CATALOGOS, CUENTA, nombreDe } from './js/catalogos.js';
+import { ErrorServidor } from './js/http.js';
+import { $, $$, esc, opciones, alEnviar, MARCA } from './js/ui.js';
+
+$('#marca').innerHTML = MARCA;
+
+const ROLES_CON_PROGRAMA = ['Estudiante', 'Docente'];
+
+const sesion = await api.sesionActual();
+if (!sesion) {
+  location.replace('index.html');
+  await new Promise(() => {});
+}
+if (sesion.registrado) {
+  location.replace(sesion.usuario.estadoCuenta === CUENTA.ACTIVA ? 'kudos.html' : 'verificacion.html');
+  await new Promise(() => {});
+}
+
+$('#correoInstitucional').value = sesion.usuario.correoInstitucional;
+$('#nombre').value = sesion.usuario.nombre;
+$('#apellido').value = sesion.usuario.apellido;
+
+const [roles, programas] = await Promise.all([api.consultarRolesRegistro(), api.consultarProgramasAcademicos()]);
+const select = $('#rol');
+select.innerHTML = opciones(roles, { vacio: 'Elija su rol' });
+
+$('#lista-programas').innerHTML = programas.length
+  ? programas.map((p) => `
+      <label class="opcion">
+        <input type="checkbox" name="programa" value="${esc(p.id)}">
+        <span>${esc(p.nombre)}${p.facultadNombre ? ` <small>· ${esc(p.facultadNombre)}</small>` : ''}</span>
+      </label>`).join('')
+  : '<p class="texto-2 chico">Todavía no hay programas académicos registrados. Pida a un Administrador que los registre.</p>';
+
+const rolElegido = () => roles.find((r) => r.id === select.value);
+const pideProgramas = () => ROLES_CON_PROGRAMA.includes(rolElegido()?.nombre);
+
+select.addEventListener('change', () => {
+  const elegido = rolElegido();
+  const idLocal = CATALOGOS.roles.find((r) => r.nombre === elegido?.nombre)?.id;
+  $('#ayuda-rol').textContent = elegido
+    ? `Su registro lo aprueba un ${nombreDe('roles', AUTORIDAD_DE[idLocal])}.`
+    : '';
+  $('#bloque-programas').hidden = !pideProgramas();
+});
+
+alEnviar($('#form-registro'), async (datos, formulario) => {
+  const programasElegidos = pideProgramas() ? $$('input[name="programa"]:checked', formulario).map((x) => x.value) : [];
+  if (pideProgramas() && !programasElegidos.length) throw new ErrorServidor('Elija al menos un programa académico.');
+  await api.registrarUsuario({ ...datos, programas: programasElegidos });
+  location.href = 'verificacion.html';
+});
+</script>
+</body>
+</html>

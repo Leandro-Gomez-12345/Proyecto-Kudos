@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi cuenta | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { $, esc, insignia, dialogo, aviso, vacio, fecha, fechaHora, pestanas, montarPagina } from './js/ui.js';
+
+const yo = await montarPagina({ pagina: 'perfil', titulo: 'Mi cuenta', descripcion: 'Su información personal, sus unidades académicas y su actividad en la plataforma.' });
+
+$('#vista').innerHTML = `
+  <div class="pestanas" role="tablist" aria-label="Secciones">
+    <button role="tab" id="t-info" aria-controls="p-info" data-tab="informacion">Información personal</button>
+    <button role="tab" id="t-act" aria-controls="p-act" data-tab="actividad">Mi actividad</button>
+  </div>
+  <section id="p-info" role="tabpanel" aria-labelledby="t-info"></section>
+  <section id="p-act" role="tabpanel" aria-labelledby="t-act" hidden>
+    <form class="filtros" id="f-act">
+      <div class="campo"><label for="fa-accion">Acción</label><input id="fa-accion" name="accion" type="search"></div>
+      <div class="campo"><label for="fa-desde">Desde</label><input id="fa-desde" name="desde" type="date"></div>
+      <div class="campo"><label for="fa-hasta">Hasta</label><input id="fa-hasta" name="hasta" type="date"></div>
+    </form>
+    <div id="actividad"></div>
+  </section>`;
+
+async function pintarInfo() {
+  const [p, vinc, cf, cp, recibidos, otorgados] = await Promise.all([
+    api.consultarInformacionPersonalUsuario(yo.id),
+    api.consultarVinculacionesAcademicas({ usuario: yo.id }),
+    api.consultarCoordinacionesFacultad({ usuario: yo.id }),
+    api.consultarCoordinacionesPrograma({ usuario: yo.id }),
+    api.consultarKudos({ destinatario: yo.id }),
+    api.consultarKudos({ autor: yo.id }),
+  ]);
+  const unidades = [
+    ...cf.map((c) => ({ texto: `Coordinación de la ${c.unidadNombre}`, desde: c.fechaInicio, hasta: c.fechaFin })),
+    ...cp.map((c) => ({ texto: `Coordinación de ${c.unidadNombre}`, desde: c.fechaInicio, hasta: c.fechaFin })),
+    ...vinc.map((v) => ({ texto: v.programaNombre, desde: v.fechaVinculacion, hasta: v.fechaDesvinculacion })),
+  ];
+  $('#p-info').innerHTML = `
+    <div class="panel">
+      <div class="panel-cabeza"><h2>${esc(p.nombre)} ${esc(p.apellido)}</h2>${insignia(p.estadoNombre)}</div>
+      <dl class="datos">
+        <dt>Rol</dt><dd>${esc(p.rolNombre)}</dd>
+        <dt>Nombre</dt><dd>${esc(p.nombre)} ${esc(p.apellido)} <button class="enlace chico" data-editar="nombre">Cambiar</button></dd>
+        <dt>Correo</dt><dd>${esc(p.correoInstitucional)} ${p.correoVerificado ? insignia('Validado') : ''} <button class="enlace chico" data-editar="correo">Cambiar</button></dd>
+        <dt>Celular</dt><dd>${esc(p.celular)} ${p.celularVerificado ? insignia('Validado') : ''} <button class="enlace chico" data-editar="celular">Cambiar</button></dd>
+        <dt>Registro</dt><dd>${esc(fechaHora(p.fechaRegistro))}</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <h2 style="margin-bottom:12px">Kudos</h2>
+      <p style="margin:0"><a href="kudos.html?vista=recibidos">Recibió ${recibidos.length}</a> y <a href="kudos.html?vista=otorgados">otorgó ${otorgados.length}</a>.</p>
+    </div>
+    <div class="panel">
+      <h2 style="margin-bottom:12px">Unidades académicas</h2>
+      ${unidades.length ? `<ul style="margin:0;padding-left:18px">${unidades.map((u) => `<li>${esc(u.texto)}: desde ${fecha(u.desde)}${u.hasta ? ` hasta ${fecha(u.hasta)}` : ' (vigente)'}</li>`).join('')}</ul>`
+        : '<p class="texto-2" style="margin:0">No está vinculado a ninguna unidad académica.</p>'}
+    </div>`;
+  return p;
+}
+
+async function pintarActividad() {
+  const lista = await api.consultarAuditoriasPropias(Object.fromEntries(new FormData($('#f-act'))));
+  $('#actividad').innerHTML = lista.length ? `<div class="tabla-envoltura"><table>
+    <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Acción</th><th scope="col">Detalle</th></tr></thead>
+    <tbody>${lista.map((a) => `<tr><td style="white-space:nowrap">${esc(fechaHora(a.fechaHora))}</td><td>${esc(a.accion)}</td><td class="chico">${esc(a.detalle)}</td></tr>`).join('')}</tbody>
+  </table></div>` : vacio('No hay actividad con ese filtro.');
+}
+$('#f-act').addEventListener('input', pintarActividad);
+
+let datos = await pintarInfo();
+const AVISO_VALIDAR = '<p class="buzon" style="margin:0">Al guardar, su cuenta vuelve a Aprobada y no podrá usar la plataforma hasta validar el dato nuevo con un código.</p>';
+
+document.addEventListener('click', async (ev) => {
+  const b = ev.target.closest('[data-editar]');
+  if (!b) return;
+  const tipo = b.dataset.editar;
+  const config = {
+    nombre: {
+      titulo: 'Corregir su nombre',
+      cuerpo: `<div class="campos">
+        <div class="campo"><label for="nombre">Nombre</label><input id="nombre" name="nombre" type="text" maxlength="60" value="${esc(datos.nombre)}"></div>
+        <div class="campo"><label for="apellido">Apellido</label><input id="apellido" name="apellido" type="text" maxlength="60" value="${esc(datos.apellido)}"></div></div>`,
+      fn: (d) => api.cambiarNombreUsuario(yo.id, d),
+    },
+    correo: {
+      titulo: 'Cambiar su correo institucional',
+      cuerpo: `<div class="campo"><label for="correoInstitucional">Correo nuevo</label>
+        <input id="correoInstitucional" name="correoInstitucional" type="email" maxlength="100" placeholder="nombre.apellido@uco.edu.co"></div>${AVISO_VALIDAR}`,
+      fn: (d) => api.cambiarCorreoUsuario(yo.id, d),
+      validar: true,
+    },
+    celular: {
+      titulo: 'Cambiar su celular',
+      cuerpo: `<div class="campo"><label for="celular">Celular nuevo</label>
+        <input id="celular" name="celular" type="tel" inputmode="numeric" maxlength="10" placeholder="3104567821"></div>${AVISO_VALIDAR}`,
+      fn: (d) => api.cambiarCelularUsuario(yo.id, d),
+      validar: true,
+    },
+  }[tipo];
+  const ok = await dialogo({ titulo: config.titulo, cuerpo: config.cuerpo, textoAceptar: 'Guardar cambios', alAceptar: config.fn });
+  if (!ok) return;
+  if (config.validar) {
+    location.href = 'verificacion.html';
+    return;
+  }
+  aviso('Información actualizada.');
+  location.reload();
+});
+
+pestanas($('.pestanas'), (tab) => { if (tab === 'actividad') pintarActividad(); });
+</script>
+</body>
+</html>

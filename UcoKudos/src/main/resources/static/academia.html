@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estructura académica | Kudos UCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<script type="module">
+import * as api from './js/api.js';
+import { ROL, CUENTA } from './js/catalogos.js';
+import { $, esc, insignia, opciones, dialogo, aviso, vacio, fecha, hoyISO, pestanas, montarPagina } from './js/ui.js';
+
+const yo = await montarPagina({
+  pagina: 'academia',
+  titulo: 'Estructura académica',
+  descripcion: 'Facultades, programas, quién los coordina y qué estudiantes y docentes pertenecen a cada programa.',
+});
+const esAdmin = yo.rol === ROL.ADMINISTRADOR;
+const esCA = yo.rol === ROL.COORD_ACADEMICO;
+const esCF = yo.rol === ROL.COORD_FACULTAD;
+const esCP = yo.rol === ROL.COORD_PROGRAMA;
+
+$('#vista').innerHTML = `
+  <div class="pestanas" role="tablist" aria-label="Secciones">
+    <button role="tab" id="t-fac" aria-controls="p-fac" data-tab="facultades">Facultades</button>
+    <button role="tab" id="t-pro" aria-controls="p-pro" data-tab="programas">Programas</button>
+    <button role="tab" id="t-vin" aria-controls="p-vin" data-tab="vinculaciones">Vinculaciones</button>
+    <button role="tab" id="t-his" aria-controls="p-his" data-tab="historial">Historial de coordinaciones</button>
+  </div>
+  <section id="p-fac" role="tabpanel" aria-labelledby="t-fac"></section>
+  <section id="p-pro" role="tabpanel" aria-labelledby="t-pro" hidden></section>
+  <section id="p-vin" role="tabpanel" aria-labelledby="t-vin" hidden></section>
+  <section id="p-his" role="tabpanel" aria-labelledby="t-his" hidden></section>`;
+
+let facultades = [];
+let programas = [];
+let cFac = [];
+let cPro = [];
+let mias = { facultades: [], programas: [] };
+
+async function cargar() {
+  [facultades, programas, cFac, cPro, mias] = await Promise.all([
+    api.consultarFacultades(), api.consultarProgramasAcademicos(),
+    api.consultarCoordinacionesFacultad(), api.consultarCoordinacionesPrograma(), api.misUnidades(),
+  ]);
+}
+const vigenteDe = (lista, campo, id) => lista.find((c) => c[campo] === id && !c.fechaFin);
+
+const campoFecha = (nombre, etiqueta) => `<div class="campo"><label for="${nombre}">${etiqueta}</label>
+  <input id="${nombre}" name="${nombre}" type="date" min="1982-01-01" max="${hoyISO()}" value="${hoyISO()}"></div>`;
+
+// ---------- Facultades ----------
+function pintarFacultades() {
+  $('#p-fac').innerHTML = `
+    ${esAdmin ? '<div class="acciones" style="margin-bottom:14px"><button class="boton boton-primario" data-accion="nueva-facultad">Nueva facultad</button></div>' : ''}
+    <div class="rejilla">${facultades.map((f) => {
+      const c = vigenteDe(cFac, 'facultad', f.id);
+      return `<article class="ficha">
+        <h3>${esc(f.nombre)}</h3>
+        <p class="texto-2 chico" style="margin:0">${f.programas} ${f.programas === 1 ? 'programa' : 'programas'}</p>
+        <p style="margin:0">${c ? `Coordina <strong>${esc(c.usuarioNombre)}</strong> desde ${fecha(c.fechaInicio)}` : '<span class="texto-2">Sin coordinador</span>'}</p>
+        <div class="fila chico">
+          ${esAdmin ? `<button class="enlace" data-accion="renombrar-facultad" data-id="${f.id}">Cambiar nombre</button>` : ''}
+          ${esCA ? `<button class="enlace" data-accion="${c ? 'reemplazar' : 'asignar'}-cf" data-id="${f.id}">${c ? 'Reemplazar coordinador' : 'Asignar coordinador'}</button>` : ''}
+        </div>
+      </article>`;
+    }).join('') || vacio('No hay facultades registradas.')}</div>`;
+}
+
+// ---------- Programas ----------
+function pintarProgramas(filtroFac = '') {
+  const lista = programas.filter((p) => !filtroFac || p.facultad === filtroFac);
+  $('#p-pro').innerHTML = `
+    <div class="filtros">
+      <div class="campo"><label for="f-fac">Facultad</label><select id="f-fac">${opciones(facultades, { vacio: 'Todas', valor: filtroFac })}</select></div>
+      ${esAdmin ? '<div class="acciones"><button class="boton boton-primario" data-accion="nuevo-programa">Nuevo programa</button></div>' : ''}
+    </div>
+    <div class="rejilla">${lista.map((p) => {
+      const c = vigenteDe(cPro, 'programaAcademico', p.id);
+      const mio = mias.facultades.includes(p.facultad);
+      return `<article class="ficha">
+        <h3>${esc(p.nombre)}</h3>
+        <p class="texto-2 chico" style="margin:0">${esc(p.facultadNombre)}</p>
+        <p style="margin:0">${c ? `Coordina <strong>${esc(c.usuarioNombre)}</strong> desde ${fecha(c.fechaInicio)}` : '<span class="texto-2">Sin coordinador</span>'}</p>
+        <div class="fila chico">
+          <button class="enlace" data-accion="ver-vinculados" data-id="${p.id}">Ver estudiantes y docentes</button>
+          ${esAdmin ? `<button class="enlace" data-accion="renombrar-programa" data-id="${p.id}">Cambiar nombre</button>` : ''}
+          ${esCF && mio ? `<button class="enlace" data-accion="${c ? 'reemplazar' : 'asignar'}-cp" data-id="${p.id}">${c ? 'Reemplazar coordinador' : 'Asignar coordinador'}</button>` : ''}
+        </div>
+      </article>`;
+    }).join('') || vacio('No hay programas en esta facultad.')}</div>`;
+  $('#f-fac').addEventListener('change', (ev) => pintarProgramas(ev.target.value));
+}
+
+// ---------- Vinculaciones ----------
+let filtroVin = { programaAcademico: '', vigentes: 'si' };
+async function pintarVinculaciones() {
+  const lista = (await api.consultarVinculacionesAcademicas({ programaAcademico: filtroVin.programaAcademico }))
+    .filter((v) => filtroVin.vigentes !== 'si' || !v.fechaDesvinculacion);
+  const coordinoAlguno = esCP && mias.programas.length > 0;
+  $('#p-vin').innerHTML = `
+    <form class="filtros" id="f-vin">
+      <div class="campo"><label for="fv-pro">Programa</label><select id="fv-pro" name="programaAcademico">${opciones(programas, { vacio: 'Todos', valor: filtroVin.programaAcademico })}</select></div>
+      <div class="campo"><label for="fv-vig">Vínculos</label><select id="fv-vig" name="vigentes">
+        <option value="si" ${filtroVin.vigentes === 'si' ? 'selected' : ''}>Solo vigentes</option>
+        <option value="" ${filtroVin.vigentes === '' ? 'selected' : ''}>Incluir historial</option></select></div>
+      ${coordinoAlguno ? '<div class="acciones"><button type="button" class="boton boton-primario" data-accion="vincular">Vincular persona</button></div>' : ''}
+    </form>
+    ${lista.length ? `<div class="tabla-envoltura"><table>
+      <thead><tr><th scope="col">Persona</th><th scope="col">Rol</th><th scope="col">Programa</th><th scope="col">Desde</th><th scope="col">Estado</th>${esCP ? '<th scope="col"><span class="sr">Acciones</span></th>' : ''}</tr></thead>
+      <tbody>${lista.map((v) => `<tr>
+        <td>${esc(v.usuarioNombre)}</td><td>${esc(v.rolNombre)}</td><td>${esc(v.programaNombre)}</td>
+        <td>${fecha(v.fechaVinculacion)}</td>
+        <td>${v.fechaDesvinculacion ? `${insignia('Terminado')} <span class="chico texto-2">${fecha(v.fechaDesvinculacion)}</span>` : insignia('Vigente')}</td>
+        ${esCP ? `<td>${!v.fechaDesvinculacion && mias.programas.includes(v.programaAcademico)
+          ? `<button class="enlace" data-accion="desvincular" data-id="${v.id}" data-nombre="${esc(v.usuarioNombre)}" data-desde="${v.fechaVinculacion}">Desvincular</button>` : ''}</td>` : ''}
+      </tr>`).join('')}</tbody></table></div>` : vacio('No hay vinculaciones con ese filtro.')}`;
+  $('#f-vin').addEventListener('change', (ev) => {
+    filtroVin = Object.fromEntries(new FormData(ev.currentTarget));
+    pintarVinculaciones();
+  });
+}
+
+// ---------- Historial ----------
+function pintarHistorial() {
+  const filas = [
+    ...cFac.map((c) => ({ ...c, tipo: 'Facultad' })),
+    ...cPro.map((c) => ({ ...c, tipo: 'Programa' })),
+  ].sort((a, b) => b.fechaInicio.localeCompare(a.fechaInicio));
+  $('#p-his').innerHTML = filas.length ? `<div class="tabla-envoltura"><table>
+    <thead><tr><th scope="col">Unidad</th><th scope="col">Tipo</th><th scope="col">Coordinador</th><th scope="col">Desde</th><th scope="col">Hasta</th></tr></thead>
+    <tbody>${filas.map((c) => `<tr><td>${esc(c.unidadNombre)}</td><td>${c.tipo}</td><td>${esc(c.usuarioNombre)}</td>
+      <td>${fecha(c.fechaInicio)}</td><td>${c.fechaFin ? fecha(c.fechaFin) : insignia('Vigente')}</td></tr>`).join('')}</tbody>
+  </table></div>` : vacio('Todavía no hay coordinaciones registradas.');
+}
+
+async function pintarTodo() {
+  await cargar();
+  pintarFacultades();
+  pintarProgramas($('#f-fac')?.value ?? '');
+  pintarHistorial();
+  await pintarVinculaciones();
+}
+
+async function personasConRol(...rolesBuscados) {
+  const listas = await Promise.all(rolesBuscados.map((rol) => api.consultarUsuarios({ rol, estadoCuenta: CUENTA.ACTIVA })));
+  return listas.flat().filter((p) => p.estadoCuenta === CUENTA.ACTIVA);
+}
+const nombrePersona = (p) => `${p.nombre} ${p.apellido}`;
+
+async function coordinacion(tipo, modo, unidadId) {
+  const esFac = tipo === 'cf';
+  const unidad = esFac ? facultades.find((f) => f.id === unidadId) : programas.find((p) => p.id === unidadId);
+  const actual = esFac ? vigenteDe(cFac, 'facultad', unidadId) : vigenteDe(cPro, 'programaAcademico', unidadId);
+  const candidatos = (await personasConRol(esFac ? ROL.COORD_FACULTAD : ROL.COORD_PROGRAMA)).filter((p) => p.id !== actual?.usuario);
+  return dialogo({
+    titulo: `${modo === 'asignar' ? 'Asignar' : 'Reemplazar'} coordinador de ${unidad.nombre}`,
+    textoAceptar: modo === 'asignar' ? 'Asignar' : 'Reemplazar',
+    cuerpo: `${actual ? `<p style="margin:0">Hoy coordina <strong>${esc(actual.usuarioNombre)}</strong>. Su coordinación se cierra con la fecha de inicio de la nueva y queda en el historial.</p>` : ''}
+      <div class="campo"><label for="usuario">Persona</label>
+        <select id="usuario" name="usuario">${opciones(candidatos, { vacio: candidatos.length ? 'Elija a la persona' : `No hay personas activas con el rol Coordinador de ${esFac ? 'Facultad' : 'Programa'}`, texto: nombrePersona })}</select>
+        <p class="ayuda">Personas con el rol de coordinador y cuenta activa.</p></div>
+      ${campoFecha('fechaInicio', 'Fecha de inicio')}`,
+    alAceptar: (d) => {
+      if (modo === 'asignar') return esFac ? api.asignarCoordinadorFacultad({ ...d, facultad: unidadId }) : api.asignarCoordinadorPrograma({ ...d, programaAcademico: unidadId });
+      return esFac ? api.reemplazarCoordinadorFacultad(actual.id, d) : api.reemplazarCoordinadorPrograma(actual.id, d);
+    },
+  });
+}
+
+document.addEventListener('click', async (ev) => {
+  const b = ev.target.closest('[data-accion]');
+  if (!b) return;
+  const id = b.dataset.id;
+  const campoNombre = (v, ph, ayuda) => `<div class="campo"><label for="nombre">Nombre</label>
+    <input id="nombre" name="nombre" type="text" value="${esc(v)}" placeholder="${ph}"><p class="ayuda">${ayuda}</p></div>`;
+  const AYUDA_FAC = 'Se escribe "Facultad de &lt;área&gt;", entre 13 y 70 caracteres.';
+  const AYUDA_PRO = 'Entre 5 y 100 caracteres, solo letras y espacios, con mayúscula inicial.';
+  let ok = false;
+  let msg = 'Cambios guardados.';
+  switch (b.dataset.accion) {
+    case 'nueva-facultad':
+      ok = await dialogo({ titulo: 'Nueva facultad', textoAceptar: 'Crear facultad', cuerpo: campoNombre('', 'Facultad de Ingeniería', AYUDA_FAC), alAceptar: (d) => api.registrarFacultad(d) });
+      msg = 'Facultad creada.';
+      break;
+    case 'renombrar-facultad': {
+      const f = facultades.find((x) => x.id === id);
+      ok = await dialogo({ titulo: 'Cambiar nombre de la facultad', textoAceptar: 'Guardar nombre', cuerpo: campoNombre(f.nombre, '', AYUDA_FAC), alAceptar: (d) => api.cambiarNombreFacultad(id, d) });
+      break;
+    }
+    case 'nuevo-programa':
+      ok = await dialogo({ titulo: 'Nuevo programa académico', textoAceptar: 'Crear programa',
+        cuerpo: `<div class="campo"><label for="facultad">Facultad</label><select id="facultad" name="facultad">${opciones(facultades, { vacio: 'Elija la facultad' })}</select></div>
+          ${campoNombre('', 'Ingeniería de Sistemas', AYUDA_PRO)}`,
+        alAceptar: (d) => api.registrarProgramaAcademico(d) });
+      msg = 'Programa creado.';
+      break;
+    case 'renombrar-programa': {
+      const p = programas.find((x) => x.id === id);
+      ok = await dialogo({ titulo: 'Cambiar nombre del programa', textoAceptar: 'Guardar nombre', cuerpo: campoNombre(p.nombre, '', AYUDA_PRO), alAceptar: (d) => api.cambiarNombreProgramaAcademico(id, d) });
+      break;
+    }
+    case 'asignar-cf': case 'reemplazar-cf': case 'asignar-cp': case 'reemplazar-cp': {
+      const [modo, tipo] = b.dataset.accion.split('-');
+      ok = await coordinacion(tipo, modo, id);
+      msg = modo === 'asignar' ? 'Coordinador asignado.' : 'Coordinador reemplazado.';
+      break;
+    }
+    case 'ver-vinculados':
+      filtroVin = { programaAcademico: id, vigentes: 'si' };
+      await pintarVinculaciones();
+      $('#t-vin').click();
+      return;
+    case 'vincular': {
+      const candidatos = await personasConRol(ROL.ESTUDIANTE, ROL.DOCENTE);
+      const propios = programas.filter((p) => mias.programas.includes(p.id));
+      ok = await dialogo({ titulo: 'Vincular persona a un programa', textoAceptar: 'Vincular',
+        cuerpo: `<div class="campo"><label for="programaAcademico">Programa</label>
+            <select id="programaAcademico" name="programaAcademico">${opciones(propios, { vacio: propios.length > 1 ? 'Elija el programa' : null, valor: filtroVin.programaAcademico })}</select></div>
+          <div class="campo"><label for="usuario">Persona</label>
+            <select id="usuario" name="usuario">${opciones(candidatos.sort((a, c) => nombrePersona(a).localeCompare(nombrePersona(c))), { vacio: 'Elija al estudiante o docente', texto: (p) => `${nombrePersona(p)}, ${p.rolNombre}` })}</select>
+            <p class="ayuda">Estudiantes y docentes con cuenta activa. Una persona puede estar en varios programas.</p></div>
+          ${campoFecha('fechaVinculacion', 'Fecha de vinculación')}`,
+        alAceptar: (d) => api.vincularPersonaAProgramaAcademico(d) });
+      msg = 'Persona vinculada.';
+      break;
+    }
+    case 'desvincular':
+      ok = await dialogo({ titulo: `Desvincular a ${b.dataset.nombre}`, textoAceptar: 'Desvincular', peligro: true,
+        cuerpo: `<p style="margin:0">El vínculo no se borra: queda en el historial con su fecha de desvinculación.</p>
+          ${campoFecha('fechaDesvinculacion', 'Fecha de desvinculación').replace('min="1982-01-01"', `min="${b.dataset.desde}"`)}`,
+        alAceptar: (d) => api.desvincularPersonaDeProgramaAcademico(id, d) });
+      msg = 'Persona desvinculada.';
+      break;
+    default:
+  }
+  if (ok) {
+    aviso(msg);
+    pintarTodo();
+  }
+});
+
+pestanas($('.pestanas'));
+pintarTodo();
+</script>
+</body>
+</html>
