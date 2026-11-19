@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.edu.uco.kudos.configuracion.SesionAutenticada;
 import co.edu.uco.kudos.controlador.AbstractRestController;
 import co.edu.uco.kudos.controlador.peticion.JustificacionPeticion;
 import co.edu.uco.kudos.controlador.peticion.RegistroUsuarioPeticion;
@@ -29,6 +30,7 @@ public class UsuarioControlador extends AbstractRestController {
 
 	@PostMapping
 	public ResponseEntity<RespuestaOk<UsuarioDTO>> registrarUsuario(@RequestBody RegistroUsuarioPeticion peticion) {
+		peticion.getUsuario().setCorreoInstitucional(SesionAutenticada.obtenerCorreo());
 		var usuario = usuarioFachada.registrarUsuario(peticion.getUsuario(), peticion.getProgramas());
 		return responderCreado(CatalogoMensajes.UsuarioControlador.USUARIO_REGISTRADO, usuario);
 	}

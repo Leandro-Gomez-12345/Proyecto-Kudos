@@ -6,8 +6,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import co.edu.uco.kudos.configuracion.SesionAutenticada;
+import co.edu.uco.kudos.negocio.fachada.AutenticacionFachada;
+import co.edu.uco.kudos.negocio.fachada.impl.AutenticacionFachadaImpl;
 import co.edu.uco.kudos.transversal.contexto.ContextoEjecucion;
-import co.edu.uco.kudos.transversal.logger.UcoKudosLogger;
 import co.edu.uco.kudos.transversal.logger.contexto.ContextoLog;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
 import co.edu.uco.kudos.transversal.utilitarios.UtilUUID;
@@ -19,8 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public final class ContextoPeticionFiltro extends OncePerRequestFilter {
 
-	private static final UcoKudosLogger LOGGER = UcoKudosLogger.obtener(ContextoPeticionFiltro.class);
-	private static final String CABECERA_ID_EJECUTOR = "X-Id-Ejecutor";
+	private static final String ATRIBUTO_ID_EJECUTOR = ContextoPeticionFiltro.class.getName() + ".idEjecutor";
+
+	private final AutenticacionFachada autenticacionFachada = new AutenticacionFachadaImpl();
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest peticion, HttpServletResponse respuesta, FilterChain cadena)
@@ -37,18 +40,22 @@ public final class ContextoPeticionFiltro extends OncePerRequestFilter {
 		}
 	}
 
-	private static UUID obtenerIdEjecutor(HttpServletRequest peticion) {
-		var valor = UtilTexto.quitarEspaciosEnBlanco(peticion.getHeader(CABECERA_ID_EJECUTOR));
+	private UUID obtenerIdEjecutor(HttpServletRequest peticion) {
+		var correo = SesionAutenticada.obtenerCorreo();
 
-		if (UtilTexto.esVacia(valor)) {
+		if (UtilTexto.esVacia(correo)) {
 			return UtilUUID.obtenerUUIDDefecto();
 		}
 
-		try {
-			return UtilUUID.convertirAUUID(valor);
-		} catch (IllegalArgumentException excepcion) {
-			LOGGER.advertencia("La cabecera {} no contiene un identificador válido", CABECERA_ID_EJECUTOR);
-			return UtilUUID.obtenerUUIDDefecto();
+		var sesion = peticion.getSession(false);
+		if (sesion != null && sesion.getAttribute(ATRIBUTO_ID_EJECUTOR) instanceof UUID idGuardado) {
+			return idGuardado;
 		}
+
+		var idEjecutor = autenticacionFachada.consultarUsuarioPorCorreo(correo).getId();
+		if (sesion != null && !UtilUUID.esValorDefecto(idEjecutor)) {
+			sesion.setAttribute(ATRIBUTO_ID_EJECUTOR, idEjecutor);
+		}
+		return idEjecutor;
 	}
 }

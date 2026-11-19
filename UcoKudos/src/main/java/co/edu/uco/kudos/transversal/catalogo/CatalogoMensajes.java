@@ -1,5 +1,6 @@
 package co.edu.uco.kudos.transversal.catalogo;
 
+import co.edu.uco.kudos.transversal.utilitarios.UtilCorreoInstitucional;
 import co.edu.uco.kudos.transversal.utilitarios.UtilTexto;
 
 public final class CatalogoMensajes {
@@ -356,6 +357,23 @@ public final class CatalogoMensajes {
 		public static final String USUARIO_ERROR_CONSULTANDO_REPORTES_REPLICA = UtilTexto.concatenar("Se presentó un problema tratando de consultar los reportes de las réplicas.", CONTACTAR_ADMINISTRADOR);
 	}
 
+	public static final class AutenticacionFachada {
+
+		private AutenticacionFachada() {
+
+		}
+
+		public static final String USUARIO_ERROR_CONSULTANDO_USUARIO_POR_CORREO = UtilTexto.concatenar("Se presentó un problema tratando de consultar la cuenta asociada al correo con el que inició sesión.", CONTACTAR_ADMINISTRADOR);
+	}
+
+	public static final class Seguridad {
+
+		private Seguridad() {
+
+		}
+
+		public static final String CORREO_NO_INSTITUCIONAL = UtilTexto.concatenar("Solo pueden ingresar personas con un correo institucional verificado que termine en ", UtilCorreoInstitucional.SUFIJO, ".");	}
+
 	public static final class AbstractRestController {
 
 		private AbstractRestController() {
@@ -690,8 +708,8 @@ public final class CatalogoMensajes {
 				"contener letras, tildes y espacios");
 		public static final String USUARIO_CELULAR_NO_VALIDO = "El celular debe tener 10 dígitos e iniciar en 3";
 		public static final String USUARIO_CELULAR_REPETIDO = "Ya existe una cuenta con ese número celular";
-		public static final String USUARIO_CORREO_NO_VALIDO =
-				"El correo debe ser institucional y terminar en @uco.edu.co";
+		public static final String USUARIO_CORREO_NO_VALIDO = UtilTexto.concatenar(
+				"El correo debe ser institucional y terminar en ", UtilCorreoInstitucional.SUFIJO);
 		public static final String USUARIO_CORREO_REPETIDO = "Ya existe una cuenta con ese correo institucional";
 		public static final String USUARIO_NOMBRE_NO_VALIDO = UtilTexto.concatenar(
 				"El nombre es obligatorio, debe tener entre 2 y 60 caracteres y solo puede ",
