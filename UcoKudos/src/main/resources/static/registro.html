@@ -55,10 +55,10 @@
         <select id="rol" name="rol" required></select>
         <p class="ayuda" id="ayuda-rol"></p>
       </div>
-      <div class="campo" id="bloque-programas" hidden>
-        <span class="etiqueta" id="etiqueta-programas">Programa académico</span>
-        <div class="lista-opciones" id="lista-programas" role="group" aria-labelledby="etiqueta-programas"></div>
-        <p class="ayuda">Elija al menos un programa. Si estudia o enseña en varios, marque todos.</p>
+      <div class="campo">
+        <label for="programa">Programa académico</label>
+        <select id="programa" name="programa" disabled></select>
+        <p class="ayuda" id="ayuda-programa">Se habilita cuando elige el rol Estudiante o Docente.</p>
       </div>
       <p class="error-form" role="alert" hidden></p>
       <button class="boton boton-primario" type="submit">Crear cuenta</button>
@@ -71,7 +71,7 @@
 import * as api from './js/api.js';
 import { AUTORIDAD_DE, CATALOGOS, CUENTA, nombreDe } from './js/catalogos.js';
 import { ErrorServidor } from './js/http.js';
-import { $, $$, esc, opciones, alEnviar, MARCA } from './js/ui.js';
+import { $, opciones, alEnviar, MARCA } from './js/ui.js';
 
 $('#marca').innerHTML = MARCA;
 
@@ -95,16 +95,24 @@ const [roles, programas] = await Promise.all([api.consultarRolesRegistro(), api.
 const select = $('#rol');
 select.innerHTML = opciones(roles, { vacio: 'Elija su rol' });
 
-$('#lista-programas').innerHTML = programas.length
-  ? programas.map((p) => `
-      <label class="opcion">
-        <input type="checkbox" name="programa" value="${esc(p.id)}">
-        <span>${esc(p.nombre)}${p.facultadNombre ? ` <small>· ${esc(p.facultadNombre)}</small>` : ''}</span>
-      </label>`).join('')
-  : '<p class="texto-2 chico">Todavía no hay programas académicos registrados. Pida a un Administrador que los registre.</p>';
+const selectPrograma = $('#programa');
+selectPrograma.innerHTML = opciones(programas, {
+  vacio: 'Elija su programa académico',
+  texto: (p) => (p.facultadNombre ? `${p.nombre} · ${p.facultadNombre}` : p.nombre),
+});
 
 const rolElegido = () => roles.find((r) => r.id === select.value);
 const pideProgramas = () => ROLES_CON_PROGRAMA.includes(rolElegido()?.nombre);
+
+function actualizarPrograma() {
+  const habilitado = pideProgramas();
+  selectPrograma.disabled = !habilitado;
+  selectPrograma.required = habilitado;
+  if (!habilitado) selectPrograma.value = '';
+  $('#ayuda-programa').textContent = !habilitado
+    ? 'Se habilita cuando elige el rol Estudiante o Docente.'
+    : programas.length ? 'Elija el programa al que pertenece.' : 'Todavía no hay programas registrados; pida a un Administrador que los registre.';
+}
 
 select.addEventListener('change', () => {
   const elegido = rolElegido();
@@ -112,13 +120,13 @@ select.addEventListener('change', () => {
   $('#ayuda-rol').textContent = elegido
     ? `Su registro lo aprueba un ${nombreDe('roles', AUTORIDAD_DE[idLocal])}.`
     : '';
-  $('#bloque-programas').hidden = !pideProgramas();
+  actualizarPrograma();
 });
 
-alEnviar($('#form-registro'), async (datos, formulario) => {
-  const programasElegidos = pideProgramas() ? $$('input[name="programa"]:checked', formulario).map((x) => x.value) : [];
-  if (pideProgramas() && !programasElegidos.length) throw new ErrorServidor('Elija al menos un programa académico.');
-  await api.registrarUsuario({ ...datos, programas: programasElegidos });
+alEnviar($('#form-registro'), async (datos) => {
+  const programaElegido = pideProgramas() ? selectPrograma.value : '';
+  if (pideProgramas() && !programaElegido) throw new ErrorServidor('Elija su programa académico.');
+  await api.registrarUsuario({ ...datos, programas: programaElegido ? [programaElegido] : [] });
   location.href = 'verificacion.html';
 });
 </script>
