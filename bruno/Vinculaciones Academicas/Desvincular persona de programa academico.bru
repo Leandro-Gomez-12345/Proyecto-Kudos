@@ -1,0 +1,21 @@
+meta {
+  name: Desvincular persona de programa academico
+  type: http
+  seq: 2
+}
+
+patch {
+  url: http://localhost:8080/api/v1/vinculaciones-academicas/:id/desvinculacion
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idVinculacion}}
+}
+
+body:json {
+  {
+    "fechaDesvinculacion": "2026-11-18"
+  }
+}

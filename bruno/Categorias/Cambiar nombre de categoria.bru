@@ -1,0 +1,21 @@
+meta {
+  name: Cambiar nombre de categoria
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:8080/api/v1/categorias/:id/nombre
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idCategoria}}
+}
+
+body:json {
+  {
+    "nombre": "Trabajo en equipo"
+  }
+}

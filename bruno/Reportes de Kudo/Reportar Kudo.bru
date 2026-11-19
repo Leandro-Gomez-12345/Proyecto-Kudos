@@ -1,0 +1,19 @@
+meta {
+  name: Reportar Kudo
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/reportes-kudo
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "kudo": { "id": "{{idKudo}}" },
+    "motivo": { "id": "{{idMotivo}}" },
+    "descripcion": "El contenido no es apropiado para la plataforma"
+  }
+}

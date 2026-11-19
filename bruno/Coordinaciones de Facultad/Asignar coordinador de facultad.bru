@@ -1,0 +1,19 @@
+meta {
+  name: Asignar coordinador de facultad
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/coordinaciones-facultad
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "usuario": { "id": "{{idUsuario}}" },
+    "facultad": { "id": "{{idFacultad}}" },
+    "fechaInicio": "2026-01-15"
+  }
+}

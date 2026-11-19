@@ -1,0 +1,17 @@
+meta {
+  name: Consultar coordinaciones de programa
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/api/v1/coordinaciones-programa
+  body: none
+  auth: none
+}
+
+params:query {
+  ~usuario.id: {{idUsuario}}
+  ~programaAcademico.id: {{idPrograma}}
+  ~fechaInicio: 2026-01-15
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Cambiar nombre de programa academico
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:8080/api/v1/programas-academicos/:id/nombre
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idPrograma}}
+}
+
+body:json {
+  {
+    "nombre": "Ingenieria de Software"
+  }
+}

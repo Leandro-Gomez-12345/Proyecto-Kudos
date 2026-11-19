@@ -1,0 +1,21 @@
+meta {
+  name: Cerrar revision de replica con liberacion
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:8080/api/v1/revisiones-replica/:id/liberacion
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idRevision}}
+}
+
+body:json {
+  {
+    "justificacion": "El contenido cumple las normas de la comunidad"
+  }
+}

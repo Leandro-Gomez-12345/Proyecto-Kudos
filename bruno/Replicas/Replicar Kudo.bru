@@ -1,0 +1,18 @@
+meta {
+  name: Replicar Kudo
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/replicas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "kudo": { "id": "{{idKudo}}" },
+    "contenido": "Muchas gracias por el reconocimiento"
+  }
+}

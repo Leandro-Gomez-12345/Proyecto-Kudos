@@ -1,0 +1,15 @@
+meta {
+  name: Desactivar categoria
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:8080/api/v1/categorias/:id/desactivacion
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{idCategoria}}
+}

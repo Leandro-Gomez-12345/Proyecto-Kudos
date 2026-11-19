@@ -1,0 +1,21 @@
+meta {
+  name: Cambiar nombre de facultad
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:8080/api/v1/facultades/:id/nombre
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idFacultad}}
+}
+
+body:json {
+  {
+    "nombre": "Facultad de Ciencias"
+  }
+}

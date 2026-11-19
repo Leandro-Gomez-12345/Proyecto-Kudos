@@ -1,0 +1,16 @@
+meta {
+  name: Consultar auditorias propias
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/api/v1/auditorias/propias
+  body: none
+  auth: none
+}
+
+params:query {
+  ~objetoAfectado: Usuario
+  ~fechaHora: 2026-11-18T10:00:00
+}
