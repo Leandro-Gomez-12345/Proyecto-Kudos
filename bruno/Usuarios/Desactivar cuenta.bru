@@ -1,0 +1,21 @@
+meta {
+  name: Desactivar cuenta
+  type: http
+  seq: 15
+}
+
+patch {
+  url: http://localhost:8080/api/v1/usuarios/:id/desactivacion
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idUsuario}}
+}
+
+body:json {
+  {
+    "justificacion": "La persona ya no pertenece a la institucion"
+  }
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Registrar rector
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/api/v1/usuarios/rectores
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "nombre": "Carlos",
+    "apellido": "Gomez",
+    "correoInstitucional": "carlos.gomez@uco.edu.co",
+    "celular": "3007654321"
+  }
+}

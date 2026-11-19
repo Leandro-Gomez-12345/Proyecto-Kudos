@@ -1,0 +1,21 @@
+meta {
+  name: Verificar correo
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:8080/api/v1/usuarios/:id/correo/verificacion
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idUsuario}}
+}
+
+body:json {
+  {
+    "codigo": "123456"
+  }
+}

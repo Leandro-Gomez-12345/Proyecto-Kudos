@@ -1,0 +1,21 @@
+meta {
+  name: Rechazar usuario
+  type: http
+  seq: 18
+}
+
+patch {
+  url: http://localhost:8080/api/v1/usuarios/:id/rechazo
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idUsuario}}
+}
+
+body:json {
+  {
+    "justificacion": "Los datos de registro no se pudieron comprobar"
+  }
+}

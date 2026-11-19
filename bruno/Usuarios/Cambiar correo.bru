@@ -1,0 +1,21 @@
+meta {
+  name: Cambiar correo
+  type: http
+  seq: 11
+}
+
+patch {
+  url: http://localhost:8080/api/v1/usuarios/:id/correo
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idUsuario}}
+}
+
+body:json {
+  {
+    "correoInstitucional": "ana.maria@uco.edu.co"
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Verificar celular
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:8080/api/v1/usuarios/:id/celular/verificacion
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{idUsuario}}
+}
+
+body:json {
+  {
+    "codigo": "123456"
+  }
+}

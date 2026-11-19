@@ -1,0 +1,22 @@
+meta {
+  name: Consultar usuarios
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:8080/api/v1/usuarios
+  body: none
+  auth: none
+}
+
+params:query {
+  ~nombre: Ana
+  ~apellido: Perez
+  ~correoInstitucional: ana.perez@uco.edu.co
+  ~celular: 3001234567
+  ~correoVerificado: true
+  ~celularVerificado: true
+  ~rol.id: {{idRol}}
+  ~estadoCuenta.id: {{idEstadoCuenta}}
+}
