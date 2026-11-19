@@ -1,11 +1,13 @@
 package co.edu.uco.kudos.controlador;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +16,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import co.edu.uco.kudos.controlador.respuesta.RespuestaError;
+import co.edu.uco.kudos.controlador.respuesta.RespuestaOk;
 import co.edu.uco.kudos.transversal.catalogo.CatalogoMensajes;
 import co.edu.uco.kudos.transversal.excepciones.UcoKudosExcepcion;
 import co.edu.uco.kudos.transversal.excepciones.enums.Capa;
@@ -37,6 +40,13 @@ public abstract class AbstractRestController {
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<RespuestaError<String>> controlarCuerpoNoLegible(HttpMessageNotReadableException excepcion) {
 		LOGGER.advertencia("Cuerpo de la petición no legible: {}", excepcion.getClass().getSimpleName());
+		return responder(HttpStatus.BAD_REQUEST, CatalogoMensajes.AbstractRestController.CUERPO_NO_VALIDO);
+	}
+
+	@ExceptionHandler(BindException.class)
+	public ResponseEntity<RespuestaError<String>> controlarFiltroNoValido(BindException excepcion) {
+		LOGGER.advertencia("Parámetros de consulta con un valor que no tiene el tipo esperado: {}",
+				excepcion.getErrorCount());
 		return responder(HttpStatus.BAD_REQUEST, CatalogoMensajes.AbstractRestController.CUERPO_NO_VALIDO);
 	}
 
@@ -80,6 +90,18 @@ public abstract class AbstractRestController {
 		LOGGER.registrarExcepcion(excepcion);
 		return responder(HttpStatus.INTERNAL_SERVER_ERROR,
 				CatalogoMensajes.AbstractRestController.ERROR_NO_CONTROLADO);
+	}
+
+	protected static <D> ResponseEntity<RespuestaOk<D>> responderOk(String mensaje, D dato) {
+		return ResponseEntity.ok(RespuestaOk.crear(List.of(mensaje), List.of(dato)));
+	}
+
+	protected static ResponseEntity<RespuestaOk<Void>> responderOk(String mensaje) {
+		return ResponseEntity.ok(RespuestaOk.crear(List.of(mensaje), List.<Void>of()));
+	}
+
+	protected static <D> ResponseEntity<RespuestaOk<D>> responderCreado(String mensaje, D dato) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(RespuestaOk.crear(List.of(mensaje), List.of(dato)));
 	}
 
 	private static ResponseEntity<RespuestaError<String>> responder(HttpStatus estado, String mensajeUsuario) {

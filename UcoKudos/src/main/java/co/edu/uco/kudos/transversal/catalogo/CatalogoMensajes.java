@@ -370,6 +370,29 @@ public final class CatalogoMensajes {
 		public static final String ERROR_NO_CONTROLADO = UtilTexto.concatenar("Se presentó un error inesperado tratando de llevar a cabo la operación deseada.", " Por favor intente de nuevo y si el problema persiste contacte al administrador de la aplicación y entréguele el código de la respuesta (correlationId).");
 	}
 
+	public static final class UsuarioControlador {
+
+		private UsuarioControlador() {
+
+		}
+
+		public static final String USUARIO_REGISTRADO = "Se ha registrado el usuario correctamente.";
+		public static final String REGISTRO_PRESENTADO_NUEVAMENTE = "Se ha presentado nuevamente el registro correctamente.";
+		public static final String RECTOR_REGISTRADO = "Se ha registrado el rector correctamente.";
+		public static final String ADMINISTRADOR_REGISTRADO = "Se ha registrado el administrador correctamente.";
+		public static final String CORREO_VERIFICADO = "Se ha verificado el correo correctamente.";
+		public static final String CELULAR_VERIFICADO = "Se ha verificado el celular correctamente.";
+		public static final String NOMBRE_CAMBIADO = "Se ha cambiado el nombre correctamente.";
+		public static final String CORREO_CAMBIADO = "Se ha cambiado el correo correctamente.";
+		public static final String CELULAR_CAMBIADO = "Se ha cambiado el celular correctamente.";
+		public static final String CUENTA_SUSPENDIDA = "Se ha suspendido la cuenta correctamente.";
+		public static final String CUENTA_REACTIVADA = "Se ha reactivado la cuenta correctamente.";
+		public static final String CUENTA_DESACTIVADA = "Se ha desactivado la cuenta correctamente.";
+		public static final String ROL_CAMBIADO = "Se ha cambiado el rol correctamente.";
+		public static final String USUARIO_APROBADO = "Se ha aprobado el usuario correctamente.";
+		public static final String USUARIO_RECHAZADO = "Se ha rechazado el usuario correctamente.";
+	}
+
 	public static final class Reglas {
 
 		private Reglas() {
