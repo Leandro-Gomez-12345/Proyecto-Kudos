@@ -393,6 +393,148 @@ public final class CatalogoMensajes {
 		public static final String USUARIO_RECHAZADO = "Se ha rechazado el usuario correctamente.";
 	}
 
+	public static final class CalificacionKudoControlador {
+
+		private CalificacionKudoControlador() {
+
+		}
+
+		public static final String KUDO_CALIFICADO = "Se ha calificado el Kudo correctamente.";
+		public static final String CALIFICACION_CAMBIADA = "Se ha cambiado la calificación correctamente.";
+	}
+
+	public static final class CalificacionReplicaControlador {
+
+		private CalificacionReplicaControlador() {
+
+		}
+
+		public static final String REPLICA_CALIFICADA = "Se ha calificado la réplica correctamente.";
+		public static final String CALIFICACION_CAMBIADA = "Se ha cambiado la calificación correctamente.";
+	}
+
+	public static final class CategoriaControlador {
+
+		private CategoriaControlador() {
+
+		}
+
+		public static final String CATEGORIA_REGISTRADA = "Se ha registrado la categoría correctamente.";
+		public static final String NOMBRE_CAMBIADO = "Se ha cambiado el nombre de la categoría correctamente.";
+		public static final String DESCRIPCION_CAMBIADA = "Se ha cambiado la descripción de la categoría correctamente.";
+		public static final String CATEGORIA_ACTIVADA = "Se ha activado la categoría correctamente.";
+		public static final String CATEGORIA_DESACTIVADA = "Se ha desactivado la categoría correctamente.";
+	}
+
+	public static final class CoordinacionFacultadControlador {
+
+		private CoordinacionFacultadControlador() {
+
+		}
+
+		public static final String COORDINADOR_ASIGNADO = "Se ha asignado el coordinador de la facultad correctamente.";
+	}
+
+	public static final class CoordinacionProgramaControlador {
+
+		private CoordinacionProgramaControlador() {
+
+		}
+
+		public static final String COORDINADOR_ASIGNADO = "Se ha asignado el coordinador del programa académico correctamente.";
+	}
+
+	public static final class FacultadControlador {
+
+		private FacultadControlador() {
+
+		}
+
+		public static final String FACULTAD_REGISTRADA = "Se ha registrado la facultad correctamente.";
+		public static final String NOMBRE_CAMBIADO = "Se ha cambiado el nombre de la facultad correctamente.";
+	}
+
+	public static final class KudoControlador {
+
+		private KudoControlador() {
+
+		}
+
+		public static final String KUDO_CREADO = "Se ha creado el Kudo correctamente.";
+	}
+
+	public static final class ProgramaAcademicoControlador {
+
+		private ProgramaAcademicoControlador() {
+
+		}
+
+		public static final String PROGRAMA_REGISTRADO = "Se ha registrado el programa académico correctamente.";
+		public static final String NOMBRE_CAMBIADO = "Se ha cambiado el nombre del programa académico correctamente.";
+	}
+
+	public static final class ReplicaControlador {
+
+		private ReplicaControlador() {
+
+		}
+
+		public static final String KUDO_REPLICADO = "Se ha replicado el Kudo correctamente.";
+		public static final String REPLICA_RESPONDIDA = "Se ha respondido la réplica correctamente.";
+	}
+
+	public static final class ReporteKudoControlador {
+
+		private ReporteKudoControlador() {
+
+		}
+
+		public static final String KUDO_REPORTADO = "Se ha reportado el Kudo correctamente.";
+	}
+
+	public static final class ReporteReplicaControlador {
+
+		private ReporteReplicaControlador() {
+
+		}
+
+		public static final String REPLICA_REPORTADA = "Se ha reportado la réplica correctamente.";
+	}
+
+	public static final class RevisionKudoControlador {
+
+		private RevisionKudoControlador() {
+
+		}
+
+		public static final String REVISION_INICIADA = "Se ha iniciado la revisión del Kudo correctamente.";
+		public static final String KUDO_VETADO = "Se ha vetado el Kudo correctamente.";
+		public static final String REVISION_CERRADA_CON_VETO = "Se ha cerrado la revisión con el veto del Kudo correctamente.";
+		public static final String REVISION_CERRADA_CON_LIBERACION = "Se ha cerrado la revisión con la liberación del Kudo correctamente.";
+	}
+
+	public static final class RevisionReplicaControlador {
+
+		private RevisionReplicaControlador() {
+
+		}
+
+		public static final String REVISION_INICIADA = "Se ha iniciado la revisión de la réplica correctamente.";
+		public static final String REPLICA_VETADA = "Se ha vetado la réplica correctamente.";
+		public static final String REVISION_CERRADA_CON_VETO = "Se ha cerrado la revisión con el veto de la réplica correctamente.";
+		public static final String REVISION_CERRADA_CON_LIBERACION = "Se ha cerrado la revisión con la liberación de la réplica correctamente.";
+	}
+
+	public static final class VinculacionAcademicaControlador {
+
+		private VinculacionAcademicaControlador() {
+
+		}
+
+		public static final String PERSONA_VINCULADA = "Se ha vinculado la persona al programa académico correctamente.";
+		public static final String PERSONA_DESVINCULADA = "Se ha desvinculado la persona del programa académico correctamente.";
+	}
+
 	public static final class Reglas {
 
 		private Reglas() {
