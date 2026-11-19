@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +34,7 @@ public class UsuarioControlador extends AbstractRestController {
 		return responderCreado(CatalogoMensajes.UsuarioControlador.USUARIO_REGISTRADO, usuario);
 	}
 
-	@PutMapping("/{id}/registro")
+	@PatchMapping("/{id}/registro")
 	public ResponseEntity<RespuestaOk<Void>> presentarNuevamenteRegistroUsuario(@PathVariable("id") UUID id,
 			@RequestBody RegistroUsuarioPeticion peticion) {
 		usuarioFachada.presentarNuevamenteRegistroUsuario(id, peticion.getUsuario(), peticion.getProgramas());
