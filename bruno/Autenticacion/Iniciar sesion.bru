@@ -1,0 +1,17 @@
+meta {
+  name: Iniciar sesion
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/autenticacion/ingreso
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "correoInstitucional": "samuel.perez@uco.edu.co"
+  }
+}
