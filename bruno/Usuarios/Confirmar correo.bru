@@ -1,0 +1,15 @@
+meta {
+  name: Confirmar correo
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:8080/api/v1/usuarios/:id/correo/confirmacion
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{idUsuario}}
+}
